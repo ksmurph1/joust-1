@@ -1,6 +1,6 @@
 # Onshore Jousts Sample
 
-Looking to get started? [Take a look at the wiki!](https://github.com/onshore-digital/onshore-jousts/wiki)
+Looking to get started? [Take a look at the wiki!](https://github.com/onshore-jousts/joust-core/wiki)
 
 This repository contains the core components of the Onshore Jousts system and is the starting point for all new jousts.
 
