@@ -19,5 +19,11 @@ A salesperson will enter a quantity of carpet required (in sf), a number of room
 * Labor cost should be estimated at 30 minutes per roll installed plus 30 minutes per room for trimming
 * Once you have a total cost, add a 40% margin to get a final price
 
-### Scoring Considerations
- * Service calculates 
+### Scoring Considerations (in order of weight)
+ * Service correctly identifies most recent company files and parses appropriate inventory data
+ * Service accurately calculates labor costs for a given job and number of carpet rolls
+ * Service is fully functional and returns a logically coherent quote
+ * Service returns an optimal quote in all circumstances
+ * Readability & Style
+ * Optimization
+ * Input & Edge Case Validation
