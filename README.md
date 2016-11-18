@@ -7,6 +7,7 @@ A salesperson will enter a quantity of carpet required (in sf), a number of room
 * Input will be an int[4] containing: [square footage required, number of rooms, hourly labor cost, desired grade of carpet]
 * Supplier Inventory Data
   * Data will be provided in CSV format with the following columns:
+    * Inventory Id (whole number)
     * Grade (whole number)
     * Length of roll (whole number)
     * Width of roll (whole number)
