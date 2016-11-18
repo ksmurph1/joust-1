@@ -1,37 +1,24 @@
-# Onshore Jousts Sample
+# Joust 1: It's Carpets All the Way Down!
+You've been contracted by a commercial carpet installation business to create a service they can plug into their CRM to help generate realtime quotes for sales people in the field. Specifically, your code will use price and item data from multiple vendors to generate a lowest cost quote for the customer.
 
-Looking to get started? [Take a look at the wiki!](https://github.com/onshore-jousts/joust-core/wiki)
+A salesperson will enter a quantity of carpet required (in sf), a number of rooms, hourly cost of labor, and a carpet grade (1-5) for a particular job. Your service will estimate the cost of required supplies (rolls of carpet) and labor, outputing supplier ordering information as well as a quote for the job.
 
-This repository contains the core components of the Onshore Jousts system and is the starting point for all new jousts.
-
-Folder structure for new jousts is as follows:
- * /src (contains all starting code)
- * /res (contains necessary resources: images, xml files, etc.)
- * /data (contains any required SQL or database files)
- * /test (contains provided test cases)
- * /tools (executable tools)
- * .gitignore
- * README.md
-
-The README.md file of the joust should adhere (more or less) to the following template:
-
-# Joust {#}: {Title}
-{ Joust Overview }
-
-### Setup Instructions
-1. { Step 1 }
-2. { Etc. }
-
-### Testing Instructions
-1. { Step 1 }
-2. { Etc. }
-
-### Available Branches
- * { Branch }: { Description }
+### Requirements
+* Input will be an int[4] containing: [square footage required, number of rooms, hourly labor cost, desired grade of carpet]
+* Supplier Inventory Data
+  * Data will be provided in CSV format with the following columns:
+    * Grade (whole number)
+    * Length of roll (whole number)
+    * Width of roll (whole number)
+    * Quantity Available (whole number)
+    * Unit price (decimal, #.##)
+  * Retrieving the CSV files from the vendors is not in scope for this effort. For testing, sample files will be provided in the data directory.
+  * The path used to retrieve files should be easily configurable
+  * Files will be named in the format: [Company Name].[mm.dd.yyyy].csv where [mm.dd.yyyy] is the date the data was pulbished. **Only the most recent data from a particular company should be used. Older quotes can be deleted.**
+* A grade of carpet from one company can be assumed to be equivalent to the same grade from another supplier. One quote might use rolls from several different companies.
+* Buying too much carpet is not a problem - all we care about is the lowest cost for the job
+* Labor cost should be estimated at 30 minutes per roll installed plus 30 minutes per room for trimming
+* Once you have a total cost, add a 40% margin to get a final price
 
 ### Scoring Considerations
  * { Consideration }
-
-### Resources
- * { [External Resource 1](https://www.google.com) }
- * { Etc. }
