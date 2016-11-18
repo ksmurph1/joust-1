@@ -27,3 +27,7 @@ A salesperson will enter a quantity of carpet required (in sf), a number of room
  * Readability & Style
  * Optimization
  * Input & Edge Case Validation
+ * Elegance
+
+### Resources
+[See this gist to understand how test data was generated or to make some of your own.](https://gist.github.com/nixondanielj/48e569fd900c0d18c3948d36d7507086)
