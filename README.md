@@ -11,7 +11,6 @@ A salesperson will enter a quantity of carpet required (in sf), a number of room
     * Grade (whole number)
     * Length of roll (whole number)
     * Width of roll (whole number)
-    * Quantity Available (whole number)
     * Unit price (decimal, #.##)
   * Retrieving the CSV files from the vendors is not in scope for this effort. For testing, sample files will be provided in the data directory.
   * The path used to retrieve files should be easily configurable
