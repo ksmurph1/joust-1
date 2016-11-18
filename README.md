@@ -15,7 +15,7 @@ A salesperson will enter a quantity of carpet required (in sf), a number of room
     * Unit price (decimal, #.##)
   * Retrieving the CSV files from the vendors is not in scope for this effort. For testing, sample files will be provided in the data directory.
   * The path used to retrieve files should be easily configurable
-  * Files will be named in the format: [Company Name].[mm.dd.yyyy].csv where [mm.dd.yyyy] is the date the data was published. **Only the most recent data from a particular company should be used. Older quotes can be deleted.**
+  * Files will be named in the format: [Company Name].[yyyy.mm.dd].csv where [yyyy.mm.dd] is the date the data was published. **Only the most recent data from a particular company should be used. Older quotes can be deleted.**
 * A grade of carpet from one company can be assumed to be equivalent to the same grade from another supplier. One quote might use rolls from several different companies.
 * Buying too much carpet is not a problem - all we care about is the lowest cost for the job
 * Labor cost should be estimated at 30 minutes per roll installed plus 30 minutes per room for trimming
