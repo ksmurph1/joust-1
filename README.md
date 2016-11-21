@@ -1,7 +1,7 @@
 # Joust 1: It's Carpets All the Way Down!
 You've been contracted by a commercial carpet installation business to create a service they can plug into their CRM to help generate realtime quotes for sales people in the field. Specifically, your code will use price and item data from multiple vendors to generate a lowest cost quote for the customer.
 
-A salesperson will enter a quantity of carpet required (in sf), a number of rooms, hourly cost of labor, and a carpet grade (1-5) for a particular job. Your service will estimate the cost of required supplies (rolls of carpet) and labor, outputing supplier ordering information as well as a quote for the job.
+A salesperson will enter a quantity of carpet required (in sf), a number of rooms, hourly cost of labor, and a carpet grade (1-9) for a particular job. Your service will estimate the cost of required supplies (rolls of carpet) and labor, outputing supplier ordering information as well as a quote for the job.
 
 ### Requirements
 * Input will be an int[4] containing: [square footage required, number of rooms, hourly labor cost, desired grade of carpet]
