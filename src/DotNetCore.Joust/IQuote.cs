@@ -1,4 +1,4 @@
-namespace DotNetCore.Joust
+namespace Interfaces.Joust
 {
     public interface IQuote
     {
