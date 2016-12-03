@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<file-descriptor>
+    <column id="1">
+       <name>ID</name>
+       <data-type>System.GUID</data-type>
+    </column>
+    <column id="2">
+       <name>Grade</name>
+       <data-type>System.Byte</data-type>
+    </column>
+    <column id="3">
+       <name>Length</name>
+       <data-type>System.UInt16</data-type>
+    </column>
+    <column id="4">
+       <name>Width</name>
+       <data-type>System.UInt16</data-type>
+   </column>
+   <column id="5">
+       <name>Price</name>
+       <data-type>System.Decimal</data-type>
+   </column>
+</file-descriptor>

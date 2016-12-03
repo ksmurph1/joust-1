@@ -1,0 +1,5 @@
+namespace Util
+{
+    struct Null
+    {}
+}
