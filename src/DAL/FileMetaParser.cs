@@ -9,7 +9,7 @@ namespace DAL
     internal static struct FileMetaParser
     {
         private const string filename=
-                              ConfigurationManager.AppSettings["MetaFileName"];
+                              ConfigurationManager.AppSettings["meta-filename"];
         
         internal static void ParseMetaData()
         {
