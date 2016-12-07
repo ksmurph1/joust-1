@@ -14,5 +14,16 @@ namespace DL
              where (r.IsMatch(file))
              select (new {file=file,date=r.Match(file).Value}).ToArray();
         }
+          public IInventory ParseFile(string filename)
+        {
+            string line;
+            using (StreamReader reader=new StreamReader(filename,System.Text.Encoding.ASCII))
+            {
+            while ((line=reader.ReadLine()) != null)
+            {
+               line.Split(',');
+            }
+            }
+        }
     }
 }
