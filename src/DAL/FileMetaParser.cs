@@ -11,7 +11,7 @@ namespace DAL
         private const string filename=
                               ConfigurationManager.AppSettings["meta-filename"];
         
-        internal static void ParseMetaData()
+        public static void ParseMetaData()
         {
             XmlReaderSettings options=new XmlReaderSettings
             {

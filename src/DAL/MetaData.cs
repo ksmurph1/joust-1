@@ -8,7 +8,7 @@ namespace DAL
         private static ConcurrentBag<KeyValuePair<byte,string>> columnNames;
         private static ConcurrentBag<KeyValuePair<byte,Type>> columnTypes;
 
-        public static void addColumn(byte index, string name, Type colType)
+        internal static void addColumn(byte index, string name, Type colType)
         {
             columnNames.Add(new KeyValuePair<byte,string>(index, name));
             columnTypes.Add(new KeyValuePair<byte,Type>(index, colType));
