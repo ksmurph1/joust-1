@@ -22,11 +22,7 @@ namespace DL
              OrderByDescending(o=>o.date).GroupBy(o=>o.coname).AsParallel().ToArray();
 
         }
-<<<<<<< HEAD
-            public IInventory ParseFile(string filename)
-=======
           public IInventory ParseFile(string filename)
->>>>>>> 86353f7b70798aac018a04b5b1a87697f85f0581
         {
             string line;
             using (StreamReader reader=new StreamReader(filename,System.Text.Encoding.ASCII))
@@ -36,10 +32,6 @@ namespace DL
                line.Split(',');
             }
             }
-<<<<<<< HEAD
 }
-=======
-        }
->>>>>>> 86353f7b70798aac018a04b5b1a87697f85f0581
     }
 }
