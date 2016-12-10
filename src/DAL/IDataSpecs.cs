@@ -1,9 +1,9 @@
 using System;
-namespace DAO
+namespace DAL
 {
     public interface IDataSpecs
     {
-        GUID ID {get;}
+        Guid ID {get;}
         byte Grade {get;}
         ushort Length {get;}
         ushort Width {get;}

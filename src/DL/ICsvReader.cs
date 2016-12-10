@@ -1,9 +1,13 @@
+using DAL;
+using System;
 namespace DL
 {
     public interface ICsvReader
     {
         string GetNextLatestCsv();
         
-        IDataTable ParseFile(string);
+        IDataSpecs? ReadLine(string);
+
+        string GetCompanyName(string);
     }
 }
