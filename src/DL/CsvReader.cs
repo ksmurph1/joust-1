@@ -2,6 +2,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Generic.Collections;
 using System.Reflection;
 using System;
 using Util;
@@ -11,8 +12,7 @@ namespace DL
     {
       private static readonly string[] columnNames;
       private static readonly PropertyInfo[] daoProperties; 
-      private bool latestCsvGeneratorActive=true;
-      private bool readLineGeneratorActive=true;
+      private readonly FileInfo thisFile;
 
       private static CsvReader()
       {
@@ -68,76 +68,37 @@ namespace DL
           // set ordered properties
           daoProperties=properties;
       }
-    
-        public ValueReturnObj<FileInfo> GetNextLatestCsv()
+        public CsvReader<T>(FileInfo file, out ValueReturnObj<T> statusObj)
         {
-            
-            if (latestCsvGeneratorActive)
-            {
-            ValueReturnObj<FileInfo> statusObj;
-                
-            Regex rgx=new Regex(@"(\w+)\.(\d{4}\.\d{2}\.\d{2})",
-                              RegexOptions.IgnoreCase|RegexOptions.Compiled);
-                              try
-                              {
-                                  
-                          
-            string dataDir=ConfigurationManager.AppSettings["data-dir"];
-            
-             var maxes= (from file in Directory.GetFiles(dataDir,"*.csv") // iterate over csv files
-             let match=rgx.Match(file) // get matches
-             where (match.Success)
-             select new {f=file, coname=match.Captures[0].Value,
-             date=DateTime.ParseExact(match.Captures[1].Value,"yyyy.MM.dd", // convert date file part into an actual date
-             System.Globalization.CultureInfo.InvariantCulture)}). 
-             GroupBy(o=>o.coname,(key, os) => os.OrderByDescending(o => o.date).First()).// group by company name order by date descending
-                       AsParallel().ToArray();                                           // so bigest date is on top for each company
-             foreach (var maxFile in maxes)
-             {
-                 // return file name that has max date
-                 statusObj=new ValueReturnObj<FileInfo>
-                 {
-                    Value=new FileInfo(maxFile.f)
-                 }
-                 yield return statusObj;
-             }
-                              }
-                              catch (Exception e)
-                              {
-                                e.Message=MethodBase.GetCurrentMethod.Name+":"+e.Message;
-                            statusObj=new ValueReturnObj<FileInfo>
-                 {
-                     Exception=e
-                 }
-                              }
-                              finally
-                              {
-                                  // deactivate generator if no more elements or exception
-                                  latestCsvGeneratorActive=false;
-                              }
-            }
-             // no more filenames to return
-             return null;
-        }
-
-          public ValueReturnObj<Nullable<IDataSpecs>> ReadLine(FileInfo file)
-        {
-            if (readLineGeneratorActive)
-            {
-             ValueReturnObj<Nullable<IDataSpecs>> statusObj;
-                
-             try
-             {   
-            // validate input
+            ValueReturnObj<T> status;
+               // validate input
             if (!file.Exists)
             {
-                throw new Exception(file.FullName+
-                " does not exist in file system");
+                status=new ValueReturnObj
+                {
+                    Exception=new Exception(MethodBase.GetCurrentMethod.Name+":"+file.FullName+
+                " does not exist in file system")
+                };
             }
-            string line;
-            // open file name
-            using (StreamReader reader=new StreamReader(file.OpenRead(),System.Text.Encoding.ASCII))
+            else
             {
+            thisFile=file;
+            }
+            statusObj=status;
+        }    
+      
+
+          public ValueReturnObj<Nullable<IDataSpecs>>[] ReadLines()
+        {
+             List<ValueReturnObj<Nullable<IDataSpecs>>> statusObjs=new  List<ValueReturnObj<Nullable<IDataSpecs>>>();
+                
+            try
+            {
+            // open file name
+                using (StreamReader reader=new StreamReader(thisFile.OpenRead(),System.Text.Encoding.ASCII);
+           {
+            string line;
+               
             while ((line=reader.ReadLine()) != null)
             {
                string[] results=line.Split(',');
@@ -148,43 +109,32 @@ namespace DL
                    daoProperties[i].SetValue(spec,Convert.ChangeType(results[i],
                    MetaData.getColumnType(columnNames[i])));
                }
-               statusObj=new ValueReturnObj<Nullable<IDataSpecs>>
+               ValueReturnObj<Nullable<IDataSpecs>> statusObj=new ValueReturnObj<Nullable<IDataSpecs>>
                  {
                      Value=spec
                  }
-               yield return statusObj; 
-            }
+               statusObjs.Add(statusObj); 
             }
              }
+            }
              catch (Exception e)
              {
- e.Message=MethodBase.GetCurrentMethod.Name+":"+e.Message;
-                            statusObj=new ValueReturnObj<Nullable<IDataSpecs>>
+                e.Message=MethodBase.GetCurrentMethod.Name+":"+e.Message;
+                 statusObjs.Add(new ValueReturnObj<Nullable<IDataSpecs>>
                  {
                      Exception=e
-                 }
+                 });
              }
-             finally
-             {
-                 readLineGeneratorActive=false;
-             }
-            }
-            // no object to return
-            return null;
+            return statusObjs.ToArray();
 }
-         public IValueReturnObj<string> GetCompanyName(FileInfo file)
+         public IValueReturnObj<string> GetCompanyName()
          {
              IValueReturnObj<string> statusObj;
              try
              {
-             // validate input
-            if (!file.Exists)
-            {
-                throw new Exception(file.FullName+" does not exist in file system");
-            }
             statusObj=new ValueReturnObj<string>
             {
-                Value=Regex.Match(file.FullName, @"(\w+)\.\d{4}\.\d{2}\.\d{2}",
+                Value=Regex.Match(thisFile.FullName, @"(\w+)\.\d{4}\.\d{2}\.\d{2}",
                         RegexOptions.IgnoreCase|RegexOptions.Compiled).Value;
             }
              }

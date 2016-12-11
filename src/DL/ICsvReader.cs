@@ -6,10 +6,9 @@ namespace DL
 {
     public interface ICsvReader
     {
-        IValueReturnObj<FileInfo> GetNextLatestCsv();
         
-        IValueReturnObje<Nullable<IDataSpecs>> ReadLine(FileInfo);
+        IValueReturnObje<Nullable<IDataSpecs>>[] ReadLine();
 
-        IValueReturnObj<string> GetCompanyName(FileInfo);
+        IValueReturnObj<string> GetCompanyName();
     }
 }
