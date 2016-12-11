@@ -1,13 +1,15 @@
 using DAL;
 using System;
+using System.IO;
+using Util;
 namespace DL
 {
     public interface ICsvReader
     {
-        string GetNextLatestCsv();
+        IValueReturnObj<FileInfo> GetNextLatestCsv();
         
-        IDataSpecs? ReadLine(string);
+        IValueReturnObje<Nullable<IDataSpecs>> ReadLine(FileInfo);
 
-        string GetCompanyName(string);
+        IValueReturnObj<string> GetCompanyName(FileInfo);
     }
 }

@@ -11,6 +11,8 @@ namespace DL
     {
       private static readonly string[] columnNames;
       private static readonly PropertyInfo[] daoProperties; 
+      private bool latestCsvGeneratorActive=true;
+      private bool readLineGeneratorActive=true;
 
       private static CsvReader()
       {
@@ -66,10 +68,20 @@ namespace DL
           // set ordered properties
           daoProperties=properties;
       }
-        public string GetNextLatestCsv()
+    
+        public ValueReturnObj<FileInfo> GetNextLatestCsv()
         {
+            
+            if (latestCsvGeneratorActive)
+            {
+            ValueReturnObj<FileInfo> statusObj;
+                
             Regex rgx=new Regex(@"(\w+)\.(\d{4}\.\d{2}\.\d{2})",
                               RegexOptions.IgnoreCase|RegexOptions.Compiled);
+                              try
+                              {
+                                  
+                          
             string dataDir=ConfigurationManager.AppSettings["data-dir"];
             
              var maxes= (from file in Directory.GetFiles(dataDir,"*.csv") // iterate over csv files
@@ -83,22 +95,48 @@ namespace DL
              foreach (var maxFile in maxes)
              {
                  // return file name that has max date
-                 yield return maxFile.f;
+                 statusObj=new ValueReturnObj<FileInfo>
+                 {
+                    Value=new FileInfo(maxFile.f)
+                 }
+                 yield return statusObj;
              }
+                              }
+                              catch (Exception e)
+                              {
+                                e.Message=MethodBase.GetCurrentMethod.Name+":"+e.Message;
+                            statusObj=new ValueReturnObj<FileInfo>
+                 {
+                     Exception=e
+                 }
+                              }
+                              finally
+                              {
+                                  // deactivate generator if no more elements or exception
+                                  latestCsvGeneratorActive=false;
+                              }
+            }
              // no more filenames to return
              return null;
         }
-          public IDataSpecs? ReadLine(string filename)
+
+          public ValueReturnObj<Nullable<IDataSpecs>> ReadLine(FileInfo file)
         {
-            // validate input
-            if (!File.Exists(filename))
+            if (readLineGeneratorActive)
             {
-                throw new Exception(MethodBase.GetCurrentMethod.Name+": "+filename+
+             ValueReturnObj<Nullable<IDataSpecs>> statusObj;
+                
+             try
+             {   
+            // validate input
+            if (!file.Exists)
+            {
+                throw new Exception(file.FullName+
                 " does not exist in file system");
             }
             string line;
             // open file name
-            using (StreamReader reader=new StreamReader(filename,System.Text.Encoding.ASCII))
+            using (StreamReader reader=new StreamReader(file.OpenRead(),System.Text.Encoding.ASCII))
             {
             while ((line=reader.ReadLine()) != null)
             {
@@ -110,22 +148,55 @@ namespace DL
                    daoProperties[i].SetValue(spec,Convert.ChangeType(results[i],
                    MetaData.getColumnType(columnNames[i])));
                }
-               yield return spec; 
+               statusObj=new ValueReturnObj<Nullable<IDataSpecs>>
+                 {
+                     Value=spec
+                 }
+               yield return statusObj; 
             }
+            }
+             }
+             catch (Exception e)
+             {
+ e.Message=MethodBase.GetCurrentMethod.Name+":"+e.Message;
+                            statusObj=new ValueReturnObj<Nullable<IDataSpecs>>
+                 {
+                     Exception=e
+                 }
+             }
+             finally
+             {
+                 readLineGeneratorActive=false;
+             }
             }
             // no object to return
             return null;
 }
-         public string GetCompanyName(string filename)
+         public IValueReturnObj<string> GetCompanyName(FileInfo file)
          {
+             IValueReturnObj<string> statusObj;
+             try
+             {
              // validate input
-            if (!File.Exists(filename))
+            if (!file.Exists)
             {
-                throw new Exception(MethodBase.GetCurrentMethod.Name+": "+filename+
-                " does not exist in file system");
+                throw new Exception(file.FullName+" does not exist in file system");
             }
-            return Regex.Match(filename, @"(\w+)\.\d{4}\.\d{2}\.\d{2}",
+            statusObj=new ValueReturnObj<string>
+            {
+                Value=Regex.Match(file.FullName, @"(\w+)\.\d{4}\.\d{2}\.\d{2}",
                         RegexOptions.IgnoreCase|RegexOptions.Compiled).Value;
+            }
+             }
+             catch (Exception e)
+             {
+                 e.Message=MethodBase.GetCurrentMethod.Name+": "+e.Message;
+                 statusObj=new ValueReturnObj<string>
+                 {
+                     Exception=e;
+                 }
+             }
+             return statusObj;
          }
     }
 }
