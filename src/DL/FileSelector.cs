@@ -5,23 +5,20 @@ using System.Linq;
 namespace DL
 {
 
-public struct FileSelector
+public static struct FileSelector
 {
-
-  public static System.Generic.Collections.IEnumerable<ValueReturnObj<FileInfo>> GetNextLatestCsv()
-        {
-            
-            ValueReturnObj<FileInfo> statusObj;
-                
-            Regex rgx=new Regex(@"(\w+)\.(\d{4}\.\d{2}\.\d{2})",
+   static FileSelector()
+   {
+  Regex rgx=new Regex(@"(\w+)\.(\d{4}\.\d{2}\.\d{2})",
                               RegexOptions.IgnoreCase|RegexOptions.Compiled);
-                              dynamic maxes;
-                              try
-                              {
-                          
+                              List <FileInfo> paths=new List<FileInfo>();
+
+try
+{
+    
             string dataDir=ConfigurationManager.AppSettings["data-dir"];
             
-             maxes= (from file in Directory.GetFiles(dataDir,"*.csv") // iterate over csv files
+             var maxes= (from file in Directory.GetFiles(dataDir,"*.csv") // iterate over csv files
              let match=rgx.Match(file) // get matches
              where (match.Success)
              select new {f=file, coname=match.Captures[0].Value,
@@ -29,26 +26,39 @@ public struct FileSelector
              System.Globalization.CultureInfo.InvariantCulture)}). 
              GroupBy(o=>o.coname,(key, os) => os.OrderByDescending(o => o.date).First()).// group by company name order by date descending
                        AsParallel().ToArray();
-                              }
-                                    catch (Exception e)
-                              {
-                                e.Message=MethodBase.GetCurrentMethod.Name+":"+e.Message;
-                            statusObj=new ValueReturnObj<FileInfo>
-                 {
-                     Exception=e
-                 };
-                 yield break;
-                              }                                           // so bigest date is on top for each company
+                   
              foreach (var maxFile in maxes)
              {
                  // return file name that has max date
-                 statusObj=new ValueReturnObj<FileInfo>
-                 {
-                    Value=new FileInfo(maxFile.f)
-                 };
-                 yield return statusObj;
+                    paths.Add(new FileInfo(maxFile.f));
              }
-                 
+                            }
+                                    catch (Exception e)
+                              {
+                                e.Message=MethodBase.GetCurrentMethod.Name+":"+e.Message;
+                                throw e;
+                              }
+                            
+        maxPaths=paths.ToArray();
+   }
+   private static FileInfo[] maxPaths;
+   private static int index=0;
+  public static ValueReturnObj<FileInfo> GetNextLatestCsv()
+        {
+            ValueReturnObj<FileInfo> statusObj;
+            if (index == paths.Count)
+            {
+                // invalidate index
+                index=-1;
             }
-        }
+            else if (index != -1)
+            {
+                statusObj=new ValueReturnObj<FileInfo>
+                {
+                    Value=maxPaths[index++]
+                }
+            }           
+            // null is returned if no more elements
+            return statusObj;
+            }
 }

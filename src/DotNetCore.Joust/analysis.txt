@@ -1,0 +1,10 @@
+data: id, rgrade(1-9), rlength, rwidth, rprice
+input: squareFootageReq, roomCount, hourlyLabor, desiredGrade(1-9)
+sqFootReq=rlength(roll)*rwidth(roll)
+totalLabor=.5*hourlyLabor*roomCount + .5*hourlyLabor*rollsReq(sqFootReq)
+totalCost=totalLabor+rollsReq(sqFootReq)*rprice(roll)
+totalCost+=totalCost*.4;
+
+find rolls matching desiredGrade with best (sqFootReq/(rlength*rwidth))*rprice(roll) ratio
+find all rolls matching desiredGrade that meets sqFootReq/(rlength*rwidth) >=1
+of those rolls find lowest price
