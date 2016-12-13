@@ -45,7 +45,7 @@ try
    private static int index=0;
   public static ValueReturnObj<FileInfo> GetNextLatestCsv()
         {
-            ValueReturnObj<FileInfo> statusObj;
+            ValueReturnObj<FileInfo> statusObj=new ValueReturnObj<FileInfo>();
             if (index == paths.Count)
             {
                 // invalidate index
@@ -53,12 +53,10 @@ try
             }
             else if (index != -1)
             {
-                statusObj=new ValueReturnObj<FileInfo>
-                {
-                    Value=maxPaths[index++]
-                }
+                statusObj.Value=maxPaths[index++];
+                
             }           
-            // null is returned if no more elements
+            // return status object
             return statusObj;
             }
 }

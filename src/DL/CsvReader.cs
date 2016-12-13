@@ -70,18 +70,16 @@ namespace DL
       }
         public CsvReader<T>(FileInfo file, out ValueReturnObj<T> statusObj)
         {
-            ValueReturnObj<T> status;
+            ValueReturnObj<T> status=new ValueReturnObj<T>();
                // validate input
             if (!file.Exists)
             {
-                status=new ValueReturnObj
-                {
-                    Exception=new Exception(MethodBase.GetCurrentMethod.Name+":"+file.FullName+
-                " does not exist in file system")
-                };
+                status.Exception=new Exception(MethodBase.GetCurrentMethod.Name+":"+file.FullName+
+                " does not exist in file system");
             }
             else
             {
+                // assigning class member variable
             thisFile=file;
             }
             statusObj=status;

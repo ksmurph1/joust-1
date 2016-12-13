@@ -8,3 +8,5 @@ totalCost+=totalCost*.4;
 find rolls matching desiredGrade with best (sqFootReq/(rlength*rwidth))*rprice(roll) ratio
 find all rolls matching desiredGrade that meets sqFootReq/(rlength*rwidth) >=1
 of those rolls find lowest price
+
+calculate price/sqft
