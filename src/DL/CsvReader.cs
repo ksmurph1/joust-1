@@ -64,6 +64,7 @@ namespace DL
              properties[i].PropertyType.FullName+ " does not match specified type "+
              MetaData.getColumnType(columnNames[i]).FullName);
           }
+    
           }
           // set ordered properties
           daoProperties=properties;

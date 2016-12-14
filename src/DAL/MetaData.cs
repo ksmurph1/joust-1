@@ -31,7 +31,7 @@ namespace DAL
         public static Type getColumnType(string colName)
         {
             int index=columnNames.First(kp=>kp.Value == colName).Select(kp=>kp.Key).DefaultIfEmpty(-1);
-            Type result=columnTypes.Where(kp=>kp.Key == index).Select(kp=>kp.Value).DefaultIfEmpty(typeof(Util.Null));
+            Type result=columnTypes.Where(kp=>kp.Key == index).Select(kp=>kp.Value).FirstOrDefault();
             return result;
         }
     }

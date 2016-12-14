@@ -68,9 +68,26 @@ namespace DAO
          
       }
 
-      public KeyValuePair<Decimal,IDataSpecs>[] CalcPricePerSqFt(Func<T,bool> predicate)
+      public ValueReturnObj<KeyValuePair<T,IDataSpecs>>[] ApplyOperation<T>(Func<IDataSpecs,T> operation, 
+                                                          Func<IDataSpecs,bool> predicate)
       {
-
+        ValueReturnObj<KeyValuePair<T,IDataSpecs>> statusObj=new ValueReturnObj<KeyValuePair<T,IDataSpecs>>();
+        try
+        {
+        
+         return rows.Where(predicate).Select(
+             d=>new ValueReturnObj<KeyValuePair<T,IDataSpecs>>
+             {
+                 // apply operation on each data object and store as key, value
+                 Value=new KeyValuePair<T, IDataSpecs>(operation(d), d)
+             } ).AsParallel(),ToArray();
+        }
+        catch (Exception e)
+        {
+            
+           statusObj.Exception=MethodBase.GetCurrentMethod.Name+": "+e.Message;
+        }
+        return statusObj;
       }
  
     }
