@@ -1,8 +1,20 @@
 {
     "version": "0.2.0",
     "configurations": [
+       
         {
-            "name": ".NET Core Launch (console)",
+            "name": "DAL",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceRoot}/src/DAL/bin/Debug/netcoreapp1.0/DAL.dll",
+            "args": [],
+            "cwd": "${workspaceRoot}/src/DAL",
+            "stopAtEntry": false,
+            "externalConsole": false  
+        },
+        {
+            "name": "Main DotNetCore.Joust",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",

@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
+using System;
 namespace DAL
 {
-    public static class MetaData
+    public struct MetaData
     {
-        private static ConcurrentBag<KeyValuePair<byte,string>> columnNames;
-        private static ConcurrentBag<KeyValuePair<byte,Type>> columnTypes;
+        private static ConcurrentBag<KeyValuePair<byte,string>> columnNames=
+            new ConcurrentBag<KeyValuePair<byte, string>>();
+        private static ConcurrentBag<KeyValuePair<byte,Type>> columnTypes=
+            new ConcurrentBag<KeyValuePair<byte, Type>>();
 
         internal static void addColumn(byte index, string name, Type colType)
         {
@@ -30,8 +33,18 @@ namespace DAL
 
         public static Type getColumnType(string colName)
         {
-            int index=columnNames.First(kp=>kp.Value == colName).Select(kp=>kp.Key).DefaultIfEmpty(-1);
-            Type result=columnTypes.Where(kp=>kp.Key == index).Select(kp=>kp.Value).FirstOrDefault();
+            Type result = null;
+             columnTypes.Zip(columnNames, (kpt, n) =>
+             {
+                if (n.Value == colName && n.Key == kpt.Key)
+                 {
+                     return kpt.Value;
+                 }
+                 else
+                 {
+                     return null;
+                 }
+             }).FirstOrDefault(t=>t!=null);
             return result;
         }
     }

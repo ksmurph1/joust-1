@@ -2557,13 +2557,6 @@
         "runtime": {
           "lib/dotnet/xunit.runner.utility.dotnet.dll": {}
         }
-      },
-      "DotNetCore.Joust/1.1.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v1.0",
-        "dependencies": {
-          "Microsoft.NETCore.App": "1.1.0"
-        }
       }
     }
   },
@@ -7580,10 +7573,6 @@
         "xunit.runner.utility.2.1.0.nupkg.sha512",
         "xunit.runner.utility.nuspec"
       ]
-    },
-    "DotNetCore.Joust/1.1.0": {
-      "type": "project",
-      "path": "../../src/DotNetCore.Joust/project.json"
     }
   },
   "projectFileDependencyGroups": {

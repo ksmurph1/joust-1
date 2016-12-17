@@ -1,4 +1,4 @@
-namespace util
+namespace Util
 {
     public struct ValueReturnObj<T> : IValueReturnObj<T>
     {

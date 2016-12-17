@@ -2061,8 +2061,7 @@
           "lib/netstandard1.3/_._": {}
         }
       }
-    },
-    ".NETFramework,Version=v4.5.2": {}
+    }
   },
   "libraries": {
     "Libuv/1.9.0": {
@@ -6672,8 +6671,7 @@
     ".NETCoreApp,Version=v1.0": [
       "Microsoft.NETCore.App >= 1.0.0",
       "System.configuration >= 2.0.5"
-    ],
-    ".NETFramework,Version=v4.5.2": []
+    ]
   },
   "tools": {},
   "projectFileToolGroups": {}
