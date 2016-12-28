@@ -12,6 +12,6 @@ namespace Interfaces.Joust
         float LaborCost {get;}
 
         // Inventory IDs of all rolls of carpet to be purchased
-        string[] RollOrders {get;set;}
+        string[] RollOrders {get;}
     }
 }

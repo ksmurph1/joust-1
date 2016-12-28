@@ -1,12 +1,12 @@
-using DAL;
+using DataObject;
 using System;
 using Util;
-namespace DL
+namespace DataLayer
 {
     public interface ICsvReader
     {
         
-        IValueReturnObje<Nullable<IDataSpecs>>[] ReadLine();
+        IValueReturnObj<Nullable<DataSpec>>[] ReadLines();
 
         IValueReturnObj<string> GetCompanyName();
     }

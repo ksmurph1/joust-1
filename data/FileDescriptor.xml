@@ -3,7 +3,7 @@
 <file-descriptor>
     <column id="1">
        <name>ID</name>
-       <data-type>System.GUID</data-type>
+       <data-type>System.Guid</data-type>
     </column>
     <column id="2">
        <name>Grade</name>

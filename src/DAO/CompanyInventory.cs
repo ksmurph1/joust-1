@@ -3,104 +3,125 @@ using System.Reflection;
 using System.Linq;
 using System.IO;
 using System;
-using DL;
-using DAL;
-namespace DAO
+using DataLayer;
+using DataObject;
+using Util;
+namespace Supplier
 {
     public class CompanyInventory : IInventory
     {
         private List<IDataSpecs> rows = new List<IDataSpecs>();
         private string title;
-        private readonly ICsvReader reader;
-        private bool invFilled = false;
-        private readonly FileInfo sourceFile;
-        public string CompanyName { get { return title; } private set; }
-        private CompanyInventory(FileInfo sourceFile)
-        {
-            this.sourceFile = sourceFile;
-        }
+        public string CompanyName { get { return title; } }
+        private MethodInfo conditional;
+        private CompanyInventory()
+        { }
 
-        public static ValueReturnObj<IInventory> CreateInstance()
+        public static IValueReturnObj<IInventory> FillInventory()
         {
-            ValueReturnObj<IInventory> result = new ValueReturnObj<IInventory>();
-            ValueReturnObj<FileInfo> statusObj = FileSelector.GetNextLatestCsv();
-            if (statusObj.Value != null)
-            {
-                result.Value = new CompanyInventory(statusObj.Value);
-            }
-            else
-            {
-                result.Exception = MethodBase.GetCurrentMethod().Name + ": No more Inventory to process" + statusObj.Exception;
-            }
-            return result;
-        }
-
-        public void FillInventory(out ValueReturnObj<object> statusObj)
-        {
+            IValueReturnObj<IInventory> statusObj = new ValueReturnObj<IInventory>();
             string methodName = MethodBase.GetCurrentMethod().Name;
-            ValueReturnObj<object> csvStatusObj = null;
-            statusObj = new ValueReturnObj<object>();
-            ICsvReader reader = new CsvReader(sourceFile, out csvStatusObj);
-            if (csvStatusObj.Exception == null)
+  
+            try
             {
-                // no exceptions- we can continue
-                title = reader.GetCompanyName();
+                IValueReturnObj<FileInfo> csvStatusObj;
 
-                ValueReturnObj<Nullable<IDataSpecs>>[] statusObjs = reader.ReadLines();
-
-                if (statusObjs.All(so => so.Value != null))
+                ICsvReader reader = new CsvReader(out csvStatusObj);
+                if (csvStatusObj.Exception == null)
                 {
-                    // if now exception populate rows of inventory
-                    foreach (ValueReturnObj<Nullable<IDataSpecs>> dstatusObj in statusObjs)
+                    IValueReturnObj<Nullable<DataSpec>>[] statusObjs = reader.ReadLines();
+
+                    if (statusObjs.All(so => so.Value != null))
                     {
-                        rows.Add(dstatusObj.Value.Value);
+                        // construct a new instance for storing rows
+                        CompanyInventory invHolder = new CompanyInventory();
+
+                        // if no exception populate rows of inventory
+                        foreach (IValueReturnObj<Nullable<DataSpec>> dstatusObj in statusObjs)
+                        {
+                            invHolder.rows.Add(dstatusObj.Value.Value);
+                        }
+                        // no exceptions- we can continue
+                        IValueReturnObj<string> title = reader.GetCompanyName();
+
+                        // get the company name
+                        if (title.Exception != null)
+                        {
+                            invHolder.title = String.Empty;
+                        }
+                        else
+                        {
+                            invHolder.title = title.Value;
+                        }
+                        statusObj.Value = invHolder;
                     }
-                    // set flag
-                    invFilled = true;
+                    else
+                    {
+                        statusObj.Exception = new Exception(methodName + ": " + 
+                                              statusObjs.First(so => so.Exception != null).Exception.Message);
+                    }
                 }
                 else
                 {
-                    statusObj.Exception = new Exception(methodName + ": " + statusObjs.First(so => so.Exception != null).Exception.Message);
+                    statusObj.Exception = new Exception(methodName + ": Something wrong with csv reader :" + csvStatusObj.Exception.Message);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                statusObj.Exception = new Exception(methodName + ": Something wrong with csv reader :" + csvStatusObj.Exception.Message);
+                statusObj.Exception = new Exception(methodName + ": Something went wrong with filling inventory :"+ex);
             }
+            return statusObj;
         }
-        public IDataSpecs[] GetRows<T>(Func<T, bool> predicate)
+        public IValueReturnObj<IDataSpecs> GetRow(Guid id)
         {
-
-        }
-
-        public bool IsInventoryFilled()
-        {
-            return invFilled;
-        }
-
-        public IList<ValueReturnObj<KeyValuePair<T, IDataSpecs>>> ApplyOperation<T>(Func<IDataSpecs, T> operation,
-                                                            Func<IDataSpecs, bool> predicate)
-        {
-            ValueReturnObj<KeyValuePair<T, IDataSpecs>> statusObj = new ValueReturnObj<KeyValuePair<T, IDataSpecs>>();
-            if (invFilled)
+            IValueReturnObj<IDataSpecs> statusObj = new ValueReturnObj<IDataSpecs>();
+            try
             {
+                statusObj.Value= rows.Find(d => d.ID.Equals(id));
+               
+            }
+            catch (Exception ex)
+            {
+                statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ": " + ex.Message);
+            }
+            return statusObj;
+        }
+        public void SetCriteria<T>(Func<T, bool> criteria)
+        {
+            this.conditional = criteria.GetMethodInfo();
+        }
+
+        public IList<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
+        {
+            IValueReturnObj<KeyValuePair<T, IDataSpecs>> statusObj = new ValueReturnObj<KeyValuePair<T, IDataSpecs>>();
+            System.Collections.ObjectModel.ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> result=
+                Array.AsReadOnly(new IValueReturnObj<KeyValuePair<T, IDataSpecs>>[] { statusObj });
                 try
                 {
+                    IEnumerable<IDataSpecs> collection;
 
-                    return Array.AsReadOnly(rows.Where(predicate).Select(
+                    // set conditional for rows to select and return new collection
+                    if (conditional == null)
+                    {
+                        collection = rows;
+                    }
+                    else
+                    {
+                        collection = rows.Where(d => (bool)conditional.Invoke(null, new object[] { d }));
+                    }
+                    result=Array.AsReadOnly(collection.AsParallel().Select(
                         d => new ValueReturnObj<KeyValuePair<T, IDataSpecs>>
                         {
                  // apply operation on each data object and store as key, value
                  Value = new KeyValuePair<T, IDataSpecs>(operation(d), d)
-                        }).AsParallel().ToArray());
+                        }).Cast< IValueReturnObj<KeyValuePair<T, IDataSpecs>>>().ToArray());
                 }
                 catch (Exception e)
                 {
 
                     statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ": " + e.Message);
                 }
-            }
-            return statusObj;
+            return result;
         }
 
     }

@@ -1,5 +1,5 @@
 using System;
-namespace DAL
+namespace DataObject
 {
     public interface IDataSpecs
     {

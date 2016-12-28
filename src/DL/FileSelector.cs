@@ -2,20 +2,22 @@ using Util;
 using System;
 using System.Text.RegularExpressions;
 using System.Linq;
-using System.Configuration;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-namespace DL
+using System.Configuration;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+
+namespace DataLayer
 {
 
     public struct FileSelector
     {
         static FileSelector()
         {
-            Regex rgx = new Regex(@"(\w+)\.(\d{4}\.\d{2}\.\d{2})",
+            Regex rgx = new Regex(@"(\w+,?\s*\w*)\.(\d{4}\.\d{2}\.\d{2})",
                                         RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            List<FileInfo> paths = new List<FileInfo>();
+            ConcurrentBag<FileInfo> paths = new ConcurrentBag<FileInfo>();
 
             try
             {
@@ -28,22 +30,24 @@ namespace DL
                              select new
                              {
                                  f = file,
-                                 coname = match.Captures[0].Value,
-                                 date = DateTime.ParseExact(match.Captures[1].Value, "yyyy.MM.dd", // convert date file part into an actual date
+                                 coname = match.Groups[1].Value,
+                                 date = DateTime.ParseExact(match.Groups[2].Value, "yyyy.MM.dd", // convert date file part into an actual date
                              System.Globalization.CultureInfo.InvariantCulture)
                              }).
-                GroupBy(o => o.coname, (key, os) => os.OrderByDescending(o => o.date).First()).// group by company name order by date descending
-                          AsParallel().ToArray();
+                             //have to do it this way in order to represent stable sort in parallel
+                GroupBy(o => o.coname, (key, os) => os.AsParallel().Select((e,idx)=> new { elem =e, idx = idx }).OrderByDescending(ao => ao.elem.date).
+                ThenByDescending(ao=>ao.idx).Select(ao=>ao.elem).First())// group by company name order by date descending
+                          .ToArray();
 
-                foreach (var maxFile in maxes)
-                {
+                Parallel.ForEach(maxes, ao =>
+                 {
                     // return file name that has max date
-                    paths.Add(new FileInfo(maxFile.f));
-                }
+                    paths.Add(new FileInfo(ao.f));
+                 });
             }
             catch (Exception e)
             {
-                throw new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message);
+                throw new Exception("FileSelector:" + e.Message);
 
             }
 

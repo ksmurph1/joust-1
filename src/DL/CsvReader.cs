@@ -1,97 +1,90 @@
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Reflection;
 using System;
-using DAL;
+using Descriptor;
 using Util;
-namespace DL
+using DataObject;
+using System.Threading.Tasks;
+
+namespace DataLayer
 {
     public struct CsvReader : ICsvReader
     {
         private static readonly string[] columnNames;
         private static readonly PropertyInfo[] daoProperties;
         private readonly FileInfo thisFile;
+       
         static CsvReader()
         {
-            string methodName = MethodBase.GetCurrentMethod().Name;
+            string methodName = "static CsvReader";
             columnNames = MetaData.GetColumnNames();
             if (columnNames.Length == 0)
             {
                 throw new Exception(methodName + ": xml metadata must be parsed first");
             }
             PropertyInfo[] properties = typeof(IDataSpecs).GetProperties();
-            if (properties.Length != columnNames.Length)
+           
+            // make sure columnNames and properties match
+//            columnNames=columnNames.AsParallel().Intersect(properties.AsParallel().Select(pi=>pi.Name),
+  //                             new CaseInsComparer()).ToArray();
+           
+            // make sure property order matches column names and names match
+            ILookup<string,PropertyInfo> lookup=properties.ToLookup(pi => pi.Name, new CaseInsComparer());
+            daoProperties=columnNames.SelectMany(name => lookup[name]).ToArray();
+
+            if (properties.Length != daoProperties.Length)
             {
                 throw new Exception(methodName +
                 ": data object properties length " + properties.Length +
                 " does not match specified length " + columnNames.Length);
             }
-            for (byte colIdx = 0; colIdx < columnNames.Length; colIdx++)
+            if (!CheckDataTypesMatch())
             {
-                float maxPct = 0f;
-                short idxOfMax = -1;
-                for (byte idx = 0; idx < properties.Length; idx++)
-                {
-                    string lcs = Utilities.LongestCommonSubstring(properties[idx].Name, columnNames[colIdx]);
-                    float matchPct = lcs.Length / (float)columnNames[colIdx].Length;
-                    if (matchPct > maxPct)
-                    {
-                        maxPct = matchPct;
-                        idxOfMax = idx;
-                    }
-                }
-                if (idxOfMax == -1)
-                {
-                    throw new Exception(methodName + ": name " + columnNames[colIdx] +
-                     " does not match data object property");
-                }
-                // put property that matches name in same order as column names
-                PropertyInfo temp = properties[colIdx];
-                properties[colIdx] = properties[idxOfMax];
-                properties[idxOfMax] = temp;
+                // throw exception if types are not assignable 
+                throw new Exception(methodName + ": types " +
+                String.Join(", ",properties.Select(p=>p.PropertyType.FullName)) + " does not match specified types " +
+                String.Join(", ",columnNames.Select(s=>MetaData.GetColumnType(s).FullName)));
             }
+        }
+        private static bool CheckDataTypesMatch()
+        {
+            bool status = false;
+
             // check that types match
-            for (byte i = 0; i < columnNames.Length; i++)
+            Parallel.For(0, columnNames.Length, (idx,pls) =>
             {
                 // compare types in data object with types specified
-                if (!properties[i].PropertyType.IsAssignableFrom(MetaData.getColumnType(columnNames[i])))
+                if (daoProperties[idx].PropertyType.IsAssignableFrom(MetaData.GetColumnType(columnNames[idx])))
                 {
-                    // throw exception if types are not assignable 
-                    throw new Exception(methodName + ": type " +
-                    properties[i].PropertyType.FullName + " does not match specified type " +
-                    MetaData.getColumnType(columnNames[i]).FullName);
+                    status = true;
+                    pls.Break();          
                 }
 
-            }
-            // set ordered properties
-            daoProperties = properties;
+            });
+            return status;
         }
-
-        public CsvReader(FileInfo file, out ValueReturnObj<T> statusObj)
+        public CsvReader(out IValueReturnObj<FileInfo> statusObj)
         {
-            ValueReturnObj<T> status = new ValueReturnObj<T>();
             thisFile = null;
-            // validate input
-            if (!file.Exists)
+            statusObj = FileSelector.GetNextLatestCsv();
+            if (statusObj.Exception==null)
             {
-                status.Exception = new Exception(MethodBase.GetCurrentMethod.Name + ":" + file.FullName +
-                " does not exist in file system");
+                // assigning class member variable
+                thisFile = statusObj.Value;
             }
             else
             {
-                // assigning class member variable
-                thisFile = file;
+                throw new Exception(MethodBase.GetCurrentMethod().Name + ": Problem getting next file to process: " + statusObj.Exception);
             }
-            statusObj = status;
         }
 
 
-        public ValueReturnObj<Nullable<IDataSpecs>>[] ReadLines()
+        public IValueReturnObj<Nullable<DataSpec>>[] ReadLines()
         {
-            List<ValueReturnObj<Nullable<IDataSpecs>>> statusObjs = new List<ValueReturnObj<Nullable<IDataSpecs>>>();
+            List<IValueReturnObj<Nullable<DataSpec>>> statusObjs = new List<IValueReturnObj<Nullable<DataSpec>>>();
 
             try
             {
@@ -105,14 +98,14 @@ namespace DL
                         string[] results = line.Split(',');
                         // populate data object
                         IDataSpecs spec = new DataSpec();
-                        for (byte i = 0; i < daoProperties.Length; i++)
+                        Parallel.For(0, daoProperties.Length, (idx)=>
+                         {
+                             daoProperties[idx].SetValue(spec, Convert.ChangeType(results[idx],
+                             MetaData.GetColumnType(columnNames[idx])));
+                         });
+                        ValueReturnObj<Nullable<DataSpec>> statusObj = new ValueReturnObj<Nullable<DataSpec>>
                         {
-                            daoProperties[i].SetValue(spec, Convert.ChangeType(results[i],
-                            MetaData.getColumnType(columnNames[i])));
-                        }
-                        ValueReturnObj<Nullable<IDataSpecs>> statusObj = new ValueReturnObj<Nullable<IDataSpecs>>
-                        {
-                            Value = spec
+                            Value = (DataSpec)spec
                         };
                         statusObjs.Add(statusObj);
                     }
@@ -120,7 +113,7 @@ namespace DL
             }
             catch (Exception e)
             {
-                statusObjs.Add(new ValueReturnObj<Nullable<IDataSpecs>>
+                statusObjs.Add(new ValueReturnObj<Nullable<DataSpec>>
                 {
                     Exception = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message)
                 });
