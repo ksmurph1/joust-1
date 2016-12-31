@@ -8,6 +8,10 @@ namespace Descriptor
     {
         private static ConcurrentDictionary<string,Type> columnDescs=
             new ConcurrentDictionary<string, Type>(new Util.CaseInsComparer());
+        private static volatile bool isCompleted=false;
+
+        public static bool IsCompleted { get { return isCompleted; } internal set { isCompleted = value; } }
+
         static MetaData()
         {
             // process meta data
@@ -15,7 +19,7 @@ namespace Descriptor
         }
         internal static void Add(string name, Type colType)
         {
-            columnDescs[name]=colType;
+            columnDescs.TryAdd(name,colType);
         }
 
         public static string[] GetColumnNames()

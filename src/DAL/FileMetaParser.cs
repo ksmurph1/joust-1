@@ -12,7 +12,7 @@ namespace Descriptor
         private static readonly string filename =
                               ConfigurationManager.AppSettings["meta-filename"];
 
-        public static void ParseMetaData()
+        public static void  ParseMetaData()
         {
             XmlReaderSettings options = new XmlReaderSettings
             {
@@ -37,27 +37,32 @@ namespace Descriptor
                 IgnoreComments = true
             };
 
-            Stack<Task> tasks = new Stack<Task>();
+            
             using (XmlReader parser = XmlReader.Create(new StreamReader(filename), options))
             {
                 parser.MoveToContent();
                 parser.ReadStartElement("file-descriptor");
 
                 bool status = parser.Name == "column";
-                while (status)
+               
+                System.Threading.ThreadPool.QueueUserWorkItem((p) =>
                 {
-                    Task<Tuple<string, Type>> task=Task.Factory.StartNew(reader=>ParseColumnData((XmlReader)reader),
-                        XmlReader.Create(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(parser.ReadOuterXml())),
-                        fragOptions),TaskCreationOptions.PreferFairness);
-                    tasks.Push(task.ContinueWith(t=>MetaData.Add(t.Result.Item1, t.Result.Item2),TaskContinuationOptions.NotOnFaulted|
-                        TaskContinuationOptions.ExecuteSynchronously));
+                    Stack<Task> tasks = new Stack<Task>();
+                    while (status)
+                    {
+                        Task<Tuple<string, Type>> task = Task.Factory.StartNew(reader => ParseColumnData((XmlReader)reader),
+                            XmlReader.Create(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(((XmlReader)p).ReadOuterXml())),
+                            fragOptions), TaskCreationOptions.PreferFairness);
+                        tasks.Push(task.ContinueWith(t => MetaData.Add(t.Result.Item1, t.Result.Item2), TaskContinuationOptions.NotOnFaulted));
 
-                    status = parser.Name == "column" && parser.IsStartElement();
-                }
+                        status = ((XmlReader)p).Name == "column" && ((XmlReader)p).IsStartElement();
+                    }
+                    Task.WaitAll(tasks.ToArray());
+                    MetaData.IsCompleted = true;
+                },parser);
+               
             }
             // wait until all tasks finish
-            Task.WaitAll(tasks.ToArray(),1);
-
         }
 
         private static Tuple<string, Type> ParseColumnData(XmlReader reader)
