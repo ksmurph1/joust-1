@@ -12,7 +12,7 @@ namespace Descriptor
         private static readonly string filename =
                               ConfigurationManager.AppSettings["meta-filename"];
 
-        public static void  ParseMetaData()
+        public static async void  ParseMetaData()
         {
             XmlReaderSettings options = new XmlReaderSettings
             {
@@ -45,24 +45,22 @@ namespace Descriptor
 
                 bool status = parser.Name == "column";
                
-                System.Threading.ThreadPool.QueueUserWorkItem((p) =>
-                {
+            
                     Stack<Task> tasks = new Stack<Task>();
                     while (status)
                     {
                         Task<Tuple<string, Type>> task = Task.Factory.StartNew(reader => ParseColumnData((XmlReader)reader),
-                            XmlReader.Create(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(((XmlReader)p).ReadOuterXml())),
+                            XmlReader.Create(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(parser.ReadOuterXml())),
                             fragOptions), TaskCreationOptions.PreferFairness);
                         tasks.Push(task.ContinueWith(t => MetaData.Add(t.Result.Item1, t.Result.Item2), TaskContinuationOptions.NotOnFaulted));
 
-                        status = ((XmlReader)p).Name == "column" && ((XmlReader)p).IsStartElement();
+                        status = parser.Name == "column" && parser.IsStartElement();
                     }
-                    Task.WaitAll(tasks.ToArray());
-                    MetaData.IsCompleted = true;
-                },parser);
-               
+
+                // wait asyncronously and set flag when finished
+                await Task.WhenAll(tasks.ToArray()).ContinueWith(t=>MetaData.IsCompleted=true);
             }
-            // wait until all tasks finish
+           
         }
 
         private static Tuple<string, Type> ParseColumnData(XmlReader reader)

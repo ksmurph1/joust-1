@@ -20,7 +20,17 @@ namespace DataLayer
         static CsvReader()
         {
             string methodName = "static CsvReader";
+            // wait for meta data collection to finish
+            while (!MetaData.IsCompleted)
+            {
+                if (MetaData.IsCompleted)
+                {
+                    break;
+                }
+            }
             columnNames = MetaData.GetColumnNames();
+           
+
             if (columnNames.Length == 0)
             {
                 throw new Exception(methodName + ": xml metadata must be parsed first");
@@ -33,23 +43,27 @@ namespace DataLayer
            
             // make sure property order matches column names and names match
             ILookup<string,PropertyInfo> lookup=properties.ToLookup(pi => pi.Name, new CaseInsComparer());
-            daoProperties=columnNames.SelectMany(name => lookup[name]).ToArray();
+            properties=columnNames.SelectMany(name => lookup[name]).ToArray();
 
-            if (properties.Length != daoProperties.Length)
+            if (properties.Length != columnNames.Length)
             {
                 throw new Exception(methodName +
                 ": data object properties length " + properties.Length +
                 " does not match specified length " + columnNames.Length);
             }
-            if (!CheckDataTypesMatch())
+            //AsParallel blocks forever here for some reason, but not an issue
+            if (properties.TakeWhile((pi, idx) => pi.PropertyType.IsAssignableFrom(
+                                               MetaData.GetColumnType(columnNames[idx]))).Count() != properties.Length)
             {
                 // throw exception if types are not assignable 
                 throw new Exception(methodName + ": types " +
                 String.Join(", ",properties.Select(p=>p.PropertyType.FullName)) + " does not match specified types " +
                 String.Join(", ",columnNames.Select(s=>MetaData.GetColumnType(s).FullName)));
             }
+            // if we made it this far then set properties
+            daoProperties = properties;
         }
-        private static bool CheckDataTypesMatch()
+        /*private static bool CheckDataTypesMatch()
         {
             bool status = false;
 
@@ -65,7 +79,7 @@ namespace DataLayer
 
             });
             return status;
-        }
+        }*/
         public CsvReader(out IValueReturnObj<FileInfo> statusObj)
         {
             thisFile = null;
@@ -77,14 +91,15 @@ namespace DataLayer
             }
             else
             {
-                throw new Exception(MethodBase.GetCurrentMethod().Name + ": Problem getting next file to process: " + statusObj.Exception);
+                throw new Exception(MethodBase.GetCurrentMethod().Name + ": Problem getting next file to process: " +
+                                    statusObj.Exception);
             }
         }
 
 
-        public IValueReturnObj<Nullable<DataSpec>>[] ReadLines()
+        public IValueReturnObj<IDataSpecs[]> ReadLines()
         {
-            List<IValueReturnObj<Nullable<DataSpec>>> statusObjs = new List<IValueReturnObj<Nullable<DataSpec>>>();
+            IValueReturnObj<List<IDataSpecs>> statusObj = new ValueReturnObj<List<IDataSpecs>>();
 
             try
             {
@@ -103,22 +118,19 @@ namespace DataLayer
                              daoProperties[idx].SetValue(spec, Convert.ChangeType(results[idx],
                              MetaData.GetColumnType(columnNames[idx])));
                          });
-                        ValueReturnObj<Nullable<DataSpec>> statusObj = new ValueReturnObj<Nullable<DataSpec>>
-                        {
-                            Value = (DataSpec)spec
-                        };
-                        statusObjs.Add(statusObj);
+                        statusObj.Value.Add(spec);
                     }
                 }
             }
             catch (Exception e)
             {
-                statusObjs.Add(new ValueReturnObj<Nullable<DataSpec>>
-                {
-                    Exception = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message)
-                });
+                statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message);
             }
-            return statusObjs.ToArray();
+            return new ValueReturnObj<IDataSpecs[]>
+            {
+                Value = statusObj.Value?.ToArray(),
+                Exception = statusObj.Exception
+            };
         }
         public IValueReturnObj<string> GetCompanyName()
         {

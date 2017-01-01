@@ -29,18 +29,16 @@ namespace Supplier
                 ICsvReader reader = new CsvReader(out csvStatusObj);
                 if (csvStatusObj.Exception == null)
                 {
-                    IValueReturnObj<Nullable<DataSpec>>[] statusObjs = reader.ReadLines();
+                    IValueReturnObj<IDataSpecs[]> rStatusObj = reader.ReadLines();
 
-                    if (statusObjs.All(so => so.Value != null))
+                    if (rStatusObj.Exception == null)
                     {
                         // construct a new instance for storing rows
                         CompanyInventory invHolder = new CompanyInventory();
 
                         // if no exception populate rows of inventory
-                        foreach (IValueReturnObj<Nullable<DataSpec>> dstatusObj in statusObjs)
-                        {
-                            invHolder.rows.Add(dstatusObj.Value.Value);
-                        }
+                        invHolder.rows.AddRange(rStatusObj.Value);
+
                         // no exceptions- we can continue
                         IValueReturnObj<string> title = reader.GetCompanyName();
 
@@ -57,8 +55,7 @@ namespace Supplier
                     }
                     else
                     {
-                        statusObj.Exception = new Exception(methodName + ": " + 
-                                              statusObjs.First(so => so.Exception != null).Exception.Message);
+                        statusObj.Exception = new Exception(methodName + ": " + rStatusObj.Exception.Message);
                     }
                 }
                 else

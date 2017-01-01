@@ -6,7 +6,7 @@ namespace DataLayer
     public interface ICsvReader
     {
         
-        IValueReturnObj<Nullable<DataSpec>>[] ReadLines();
+        IValueReturnObj<IDataSpecs[]> ReadLines();
 
         IValueReturnObj<string> GetCompanyName();
     }
