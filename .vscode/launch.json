@@ -1,28 +1,17 @@
 {
     "version": "0.2.0",
     "configurations": [
-       
         {
-            "name": "DAL",
+            "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/src/DAL/bin/Debug/netcoreapp1.0/DAL.dll",
+            "program": "${workspaceRoot}\\src\\DotNetCore.Joust\\bin\\Debug\\net452\\DotNetCore.Joust.exe",
             "args": [],
-            "cwd": "${workspaceRoot}/src/DAL",
+            "cwd": "${workspaceRoot}",
+            "externalConsole": false,
             "stopAtEntry": false,
-            "externalConsole": false  
-        },
-        {
-            "name": "Main DotNetCore.Joust",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceRoot}/src/DotNetCore.Joust/bin/Debug/netcoreapp1.0/DotNetCore.Joust.dll",
-            "args": [],
-            "cwd": "${workspaceRoot}/src/DotNetCore.Joust",
-            "stopAtEntry": false,
-            "externalConsole": true
+            "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "name": ".NET Core Attach",

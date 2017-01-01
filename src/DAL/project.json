@@ -1,24 +1,26 @@
 {
-  "version": "1.1.0-*",
+  "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable",
-    "emitEntryPoint": false
+    "debugType": "portable"
   },
   "dependencies": {
+    "System.Configuration":"2.0.5",
+    "Util":{
+      "target": "project"
+    }
   },
   "frameworks": {
-    "netcoreapp1.0": {
+    "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0"
-        },
-        "System.configuration": {
-          "type": "build",
-          "version": "2.0.5"
+          "version": "1.1.0"
         }
       },
-      "imports": "dnx452"
+      "imports": [
+        "dotnet5.4",
+        "portable-net451+win8"
+      ]
     }
   }
 }

@@ -3,13 +3,12 @@
     "command": "dotnet",
     "isShellCommand": true,
     "args": [],
-    "options":  {
-        "cwd": "${workspaceRoot}/src/DotNetCore.Joust"
-    },
     "tasks": [
         {
             "taskName": "build",
-            "args": [ ],
+            "args": [
+                "${workspaceRoot}\\src\\DotNetCore.Joust\\project.json"
+            ],
             "isBuildCommand": true,
             "problemMatcher": "$msCompile"
         }

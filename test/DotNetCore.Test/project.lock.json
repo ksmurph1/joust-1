@@ -17,7 +17,7 @@
           "lib/netcoreapp1.0/dotnet-test-xunit.dll": {}
         }
       },
-      "Libuv/1.9.1": {
+      "Libuv/1.9.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.0.1"
@@ -274,10 +274,10 @@
           "lib/netstandard1.5/Microsoft.Extensions.Testing.Abstractions.dll": {}
         }
       },
-      "Microsoft.NETCore.App/1.1.0": {
+      "Microsoft.NETCore.App/1.0.1": {
         "type": "package",
         "dependencies": {
-          "Libuv": "1.9.1",
+          "Libuv": "1.9.0",
           "Microsoft.CSharp": "4.0.1",
           "Microsoft.CodeAnalysis.CSharp": "1.3.0",
           "Microsoft.CodeAnalysis.VisualBasic": "1.3.0",
@@ -2557,6 +2557,15 @@
         "runtime": {
           "lib/dotnet/xunit.runner.utility.dotnet.dll": {}
         }
+      },
+      "DotNetCore.Joust/1.0.0": {
+        "type": "project",
+        "framework": "Unsupported,Version=v0.0",
+        "dependencies": {
+          "DataObject": "(, )",
+          "Supplier": "(, )",
+          "Util": "(, )"
+        }
       }
     }
   },
@@ -2576,12 +2585,12 @@
         "runtimes/win7-x86/lib/net451/dotnet-test-xunit.exe"
       ]
     },
-    "Libuv/1.9.1": {
-      "sha512": "uqX2Frwf9PW8MaY7PRNY6HM5BpW1D8oj1EdqzrmbEFD5nH63Yat3aEjN/tws6Tw6Fk7LwmLBvtUh32tTeTaHiA==",
+    "Libuv/1.9.0": {
+      "sha512": "VLrJp8FlUuR26OIp4YkPoNLxGz0MngEWl26Poauq4qwZUk8FPjt3aX68OX6MF4VlsBqKd8SSHClvHRXDmPPsYg==",
       "type": "package",
-      "path": "Libuv/1.9.1",
+      "path": "Libuv/1.9.0",
       "files": [
-        "Libuv.1.9.1.nupkg.sha512",
+        "Libuv.1.9.0.nupkg.sha512",
         "Libuv.nuspec",
         "License.txt",
         "runtimes/debian-x64/native/libuv.so",
@@ -2788,12 +2797,12 @@
         "lib/netstandard1.5/Microsoft.Extensions.Testing.Abstractions.dll"
       ]
     },
-    "Microsoft.NETCore.App/1.1.0": {
-      "sha512": "DFec+OUojDVocn1GxAL9uJg4qwsgkvKiQpv6BKd9ljGezvc9p6GpFv51IIakiujkVW/wBtQ0xlfjVSgS1UG/uw==",
+    "Microsoft.NETCore.App/1.0.1": {
+      "sha512": "ojrDPkn357gQGzdr+qA03KBy6Y1KQ7g4MCw2J357bgiCA9Hnh7C1UuNuXY1OMFNd8XLb4iiZHLWLKEjOhXwIzw==",
       "type": "package",
-      "path": "Microsoft.NETCore.App/1.1.0",
+      "path": "Microsoft.NETCore.App/1.0.1",
       "files": [
-        "Microsoft.NETCore.App.1.1.0.nupkg.sha512",
+        "Microsoft.NETCore.App.1.0.1.nupkg.sha512",
         "Microsoft.NETCore.App.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -7573,6 +7582,10 @@
         "xunit.runner.utility.2.1.0.nupkg.sha512",
         "xunit.runner.utility.nuspec"
       ]
+    },
+    "DotNetCore.Joust/1.0.0": {
+      "type": "project",
+      "path": "../../src/DotNetCore.Joust/project.json"
     }
   },
   "projectFileDependencyGroups": {
@@ -7583,7 +7596,7 @@
       "xunit >= 2.1.0"
     ],
     ".NETCoreApp,Version=v1.0": [
-      "Microsoft.NETCore.App >= 1.1.0"
+      "Microsoft.NETCore.App >= 1.0.1"
     ]
   },
   "tools": {},
