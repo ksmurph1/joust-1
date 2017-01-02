@@ -99,8 +99,8 @@ namespace DataLayer
 
         public IValueReturnObj<IDataSpecs[]> ReadLines()
         {
-            IValueReturnObj<List<IDataSpecs>> statusObj = new ValueReturnObj<List<IDataSpecs>>();
-
+            List<IDataSpecs> dataObjs = new List<IDataSpecs>();
+            Exception dataEx=null;
             try
             {
                 // open file name
@@ -118,18 +118,18 @@ namespace DataLayer
                              daoProperties[idx].SetValue(spec, Convert.ChangeType(results[idx],
                              MetaData.GetColumnType(columnNames[idx])));
                          });
-                        statusObj.Value.Add(spec);
+                        dataObjs.Add(spec);
                     }
                 }
             }
             catch (Exception e)
             {
-                statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message);
+                dataEx = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message);
             }
             return new ValueReturnObj<IDataSpecs[]>
             {
-                Value = statusObj.Value?.ToArray(),
-                Exception = statusObj.Exception
+                Value = dataObjs.ToArray(),
+                Exception = dataEx
             };
         }
         public IValueReturnObj<string> GetCompanyName()

@@ -3,11 +3,11 @@ namespace DataObject
 {
     public struct DataSpec : IDataSpecs
     {
-        public Guid ID {get; internal set;}
-        public byte Grade {get; internal set;}
-        public ushort Length {get; internal set;}
-        public ushort Width {get; internal set;}
-        public decimal Price{get; internal set;}
+        public Guid ID {get; set;}
+        public byte Grade {get; set;}
+        public ushort Length {get; set;}
+        public ushort Width {get; set;}
+        public decimal Price{get; set;}
 
     }
 }
