@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace Util
 {
-    public struct CaseInsComparer : IEqualityComparer<string>
+    public struct CaseInsComparer : IEqualityComparer<KeyValuePair<byte,string>>
     {
-        public int GetHashCode(string obj)
+        public int GetHashCode(KeyValuePair<byte,string> obj)
         {
-            return obj.GetHashCode();
+            return obj.Value.GetHashCode();
         }
 
-        public bool Equals(string a, string b)
+        public bool Equals(KeyValuePair<byte,string> a, KeyValuePair<byte,string> b)
         {
             bool status = false;
-            if (String.Compare(a, b, true) == 0)
+            if (String.Compare(a.Value, b.Value, true) == 0)
             {
                 status = true;
             }

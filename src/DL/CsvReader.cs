@@ -16,7 +16,26 @@ namespace DataLayer
         private static readonly string[] columnNames;
         private static readonly PropertyInfo[] daoProperties;
         private readonly FileInfo thisFile;
-       
+
+        public bool IsDone { get; private set; }
+
+        private struct CaseInsComparer : IEqualityComparer<string>
+        {
+            public int GetHashCode(string obj)
+            {
+                return obj.GetHashCode();
+            }
+
+            public bool Equals(string a, string b)
+            {
+                bool status = false;
+                if (String.Compare(a, b, true) == 0)
+                {
+                    status = true;
+                }
+                return status;
+            }
+        };
         static CsvReader()
         {
             string methodName = "static CsvReader";
@@ -84,15 +103,23 @@ namespace DataLayer
         {
             thisFile = null;
             statusObj = FileSelector.GetNextLatestCsv();
-            if (statusObj.Exception==null)
+            if (!FileSelector.IsDone)
             {
-                // assigning class member variable
-                thisFile = statusObj.Value;
+                IsDone = false;
+                if (statusObj.HasVal)
+                {
+                    // assigning class member variable
+                    thisFile = statusObj.Value;
+                }
+                else
+                {
+                    statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name +
+                        ": Problem getting next file to process: " + statusObj.Exception);
+                }
             }
             else
             {
-                throw new Exception(MethodBase.GetCurrentMethod().Name + ": Problem getting next file to process: " +
-                                    statusObj.Exception);
+                IsDone = true;
             }
         }
 
@@ -100,7 +127,7 @@ namespace DataLayer
         public IValueReturnObj<IDataSpecs[]> ReadLines()
         {
             List<IDataSpecs> dataObjs = new List<IDataSpecs>();
-            Exception dataEx=null;
+            ValueReturnObj < IDataSpecs[] > statusObj=new ValueReturnObj<IDataSpecs[]>();
             try
             {
                 // open file name
@@ -115,22 +142,19 @@ namespace DataLayer
                         IDataSpecs spec = new DataSpec();
                         Parallel.For(0, daoProperties.Length, (idx)=>
                          {
-                             daoProperties[idx].SetValue(spec, Convert.ChangeType(results[idx],
-                             MetaData.GetColumnType(columnNames[idx])));
+                         daoProperties[idx].SetValue(spec, System.ComponentModel.TypeDescriptor.GetConverter(
+                             MetaData.GetColumnType(columnNames[idx])).ConvertFromString(results[idx]));
                          });
                         dataObjs.Add(spec);
                     }
                 }
+                statusObj.Value = dataObjs.ToArray();
             }
             catch (Exception e)
             {
-                dataEx = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message);
+                statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message);
             }
-            return new ValueReturnObj<IDataSpecs[]>
-            {
-                Value = dataObjs.ToArray(),
-                Exception = dataEx
-            };
+            return statusObj;
         }
         public IValueReturnObj<string> GetCompanyName()
         {
@@ -139,8 +163,8 @@ namespace DataLayer
             {
                 statusObj = new ValueReturnObj<string>
                 {
-                    Value = Regex.Match(thisFile.FullName, @"(\w+)\.\d{4}\.\d{2}\.\d{2}",
-                            RegexOptions.IgnoreCase | RegexOptions.Compiled).Value
+                    Value = Regex.Match(thisFile.FullName, @"(\w+,?\s*\w*)\.\d{4}\.\d{2}\.\d{2}",
+                            RegexOptions.IgnoreCase | RegexOptions.Compiled).Groups[1].Value
                 };
             }
             catch (Exception e)

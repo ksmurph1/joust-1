@@ -27,35 +27,39 @@ namespace Supplier
                 IValueReturnObj<FileInfo> csvStatusObj;
 
                 ICsvReader reader = new CsvReader(out csvStatusObj);
-                if (csvStatusObj.Exception == null)
+                if (csvStatusObj.HasVal)
                 {
-                    IValueReturnObj<IDataSpecs[]> rStatusObj = reader.ReadLines();
-
-                    if (rStatusObj.Exception == null)
+                    IValueReturnObj<IDataSpecs[]> rStatusObj;
+                    if (!reader.IsDone)   // continue if not done
                     {
-                        // construct a new instance for storing rows
-                        CompanyInventory invHolder = new CompanyInventory();
+                        rStatusObj = reader.ReadLines();
 
-                        // if no exception populate rows of inventory
-                        invHolder.rows.AddRange(rStatusObj.Value);
-
-                        // no exceptions- we can continue
-                        IValueReturnObj<string> title = reader.GetCompanyName();
-
-                        // get the company name
-                        if (title.Exception != null)
+                        if (rStatusObj.HasVal)
                         {
-                            invHolder.title = String.Empty;
+                            // construct a new instance for storing rows
+                            CompanyInventory invHolder = new CompanyInventory();
+
+                            // if no exception populate rows of inventory
+                            invHolder.rows.AddRange(rStatusObj.Value);
+
+                            // no exceptions- we can continue
+                            IValueReturnObj<string> title = reader.GetCompanyName();
+
+                            // get the company name
+                            if (!title.HasVal)
+                            {
+                                invHolder.title = String.Empty;
+                            }
+                            else
+                            {
+                                invHolder.title = title.Value;
+                            }
+                            statusObj.Value = invHolder;
                         }
                         else
                         {
-                            invHolder.title = title.Value;
+                            statusObj.Exception = new Exception(methodName + ": " + rStatusObj.Exception.Message);
                         }
-                        statusObj.Value = invHolder;
-                    }
-                    else
-                    {
-                        statusObj.Exception = new Exception(methodName + ": " + rStatusObj.Exception.Message);
                     }
                 }
                 else

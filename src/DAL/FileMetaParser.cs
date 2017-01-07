@@ -49,10 +49,11 @@ namespace Descriptor
                     Stack<Task> tasks = new Stack<Task>();
                     while (status)
                     {
-                        Task<Tuple<string, Type>> task = Task.Factory.StartNew(reader => ParseColumnData((XmlReader)reader),
+                        Task<Tuple<byte, string, Type>> task = Task.Factory.StartNew(reader => ParseColumnData((XmlReader)reader),
                             XmlReader.Create(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(parser.ReadOuterXml())),
                             fragOptions), TaskCreationOptions.PreferFairness);
-                        tasks.Push(task.ContinueWith(t => MetaData.Add(t.Result.Item1, t.Result.Item2), TaskContinuationOptions.NotOnFaulted));
+                        tasks.Push(task.ContinueWith(t => MetaData.Add(t.Result.Item1,t.Result.Item2, t.Result.Item3), 
+                                                      TaskContinuationOptions.NotOnFaulted));
 
                         status = parser.Name == "column" && parser.IsStartElement();
                     }
@@ -63,7 +64,7 @@ namespace Descriptor
            
         }
 
-        private static Tuple<string, Type> ParseColumnData(XmlReader reader)
+        private static Tuple<byte, string, Type> ParseColumnData(XmlReader reader)
         {
             reader.Read(); // move to element
             byte index = Convert.ToByte(reader.GetAttribute("id"));
@@ -75,7 +76,7 @@ namespace Descriptor
                                      ": " + " Found " + reader.Name+" instead of data-type in xml");
             }
             Type t = Type.GetType((string)reader.ReadElementContentAs(typeof(string),null));
-            return new Tuple<string, Type>(colname, t);
+            return new Tuple<byte,string, Type>(index,colname, t);
         }
     }
 }

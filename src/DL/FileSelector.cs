@@ -55,6 +55,9 @@ namespace DataLayer
         }
         private static FileInfo[] maxPaths;
         private static int index = 0;
+
+        public static bool IsDone { get; private set; }
+
         public static ValueReturnObj<FileInfo> GetNextLatestCsv()
         {
             ValueReturnObj<FileInfo> statusObj = new ValueReturnObj<FileInfo>();
@@ -62,7 +65,8 @@ namespace DataLayer
             {
                 // invalidate index
                 index = -1;
-                statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ":" + " No more elements to get");
+                // set done flag
+                FileSelector.IsDone = true;
             }
             else if (index != -1)
             {
