@@ -1,6 +1,8 @@
 {
     "projects": [
-        "src",
+        "src/DataObject",
+        "src/DAL",
+        "src/Util",
         "test"
     ]
 }
