@@ -2193,6 +2193,15 @@
           "Microsoft.NETCore.App": "1.1.0"
         }
       },
+      "Descriptor/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v1.1",
+        "dependencies": {
+          "Microsoft.NETCore.App": "1.1.0",
+          "System.Configuration": "2.0.5",
+          "Util": "(, )"
+        }
+      },
       "Util/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v1.1",
@@ -7017,6 +7026,10 @@
       "type": "project",
       "path": "../DataObject/project.json"
     },
+    "Descriptor/1.0.0": {
+      "type": "project",
+      "path": "../Descriptor/project.json"
+    },
     "Util/1.0.0": {
       "type": "project",
       "path": "../Util/project.json"
@@ -7025,6 +7038,7 @@
   "projectFileDependencyGroups": {
     "": [
       "DataObject",
+      "Descriptor",
       "System.Configuration >= 2.0.5",
       "Util"
     ],

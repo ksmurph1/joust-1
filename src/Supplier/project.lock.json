@@ -2213,16 +2213,6 @@
           "Util": "(, )"
         }
       },
-      "Supplier/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v1.1",
-        "dependencies": {
-          "DataLayer": "(, )",
-          "DataObject": "(, )",
-          "Microsoft.NETCore.App": "1.1.0",
-          "Util": "(, )"
-        }
-      },
       "Util/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v1.1",
@@ -7055,10 +7045,6 @@
       "type": "project",
       "path": "../Descriptor/project.json"
     },
-    "Supplier/1.0.0": {
-      "type": "project",
-      "path": "../Supplier/project.json"
-    },
     "Util/1.0.0": {
       "type": "project",
       "path": "../Util/project.json"
@@ -7066,8 +7052,8 @@
   },
   "projectFileDependencyGroups": {
     "": [
+      "DataLayer",
       "DataObject",
-      "Supplier",
       "Util"
     ],
     ".NETCoreApp,Version=v1.1": [

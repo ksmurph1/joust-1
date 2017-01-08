@@ -10,6 +10,9 @@
     },
     "DataObject":{
         "target": "project"
+    },
+    "Descriptor":{
+      "target": "project"
     }
   },
   "frameworks": {
