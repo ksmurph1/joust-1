@@ -4,13 +4,13 @@
     "debugType": "portable"
   },
   "dependencies": {
-    "System.Configuration":"2.0.5",
+    "Microsoft.Extensions.Configuration":"1.1.0",
     "Util":{
       "target": "project"
     }
   },
   "frameworks": {
-    "netcoreapp1.1": {
+   "netcoreapp1.1": {
       "dependencies": {
         "Microsoft.NETCore.App": {
           "type": "platform",
@@ -20,7 +20,8 @@
       "imports": [
         "dotnet5.4",
         "portable-net451+win8"
-      ]
+      ],
+      "bin":{"assembly":"C:/Users/Rahm/.nuget/packages/System.Configuration/2.0.5/System.configuration.dll"}
     }
   }
 }

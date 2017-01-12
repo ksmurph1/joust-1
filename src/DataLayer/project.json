@@ -12,7 +12,8 @@
     },
     "Descriptor":{
       "target": "project"
-    }
+    },
+    "System.Configuration":"2.0.*"
   },
   "frameworks": {
     "netcoreapp1.1": {
@@ -20,8 +21,7 @@
         "Microsoft.NETCore.App": {
           "type": "platform",
           "version": "1.1.0"
-        },
-         "System.Configuration":"2.0.5"
+        }
       },
       "imports": [
         "dotnet5.4",

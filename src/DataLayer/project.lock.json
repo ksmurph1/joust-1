@@ -7039,11 +7039,11 @@
     "": [
       "DataObject",
       "Descriptor",
+      "System.Configuration >= 2.0.*",
       "Util"
     ],
     ".NETCoreApp,Version=v1.1": [
-      "Microsoft.NETCore.App >= 1.1.0",
-      "System.Configuration >= 2.0.5"
+      "Microsoft.NETCore.App >= 1.1.0"
     ]
   },
   "tools": {},

@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Configuration;
 namespace DotNetCore.Test
 {
     public class Program

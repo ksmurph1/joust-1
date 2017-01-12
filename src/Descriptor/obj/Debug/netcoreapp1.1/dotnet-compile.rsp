@@ -1,5 +1,5 @@
---temp-output:c:\Users\Rahm\joust-1\src\Descriptor\obj\Debug\netcoreapp1.1\
---out:c:\Users\Rahm\joust-1\src\Descriptor\bin\Debug\netcoreapp1.1\Descriptor.dll
+--temp-output:C:\Users\Rahm\joust-1\src\Descriptor\obj\Debug\netcoreapp1.1\
+--out:C:\Users\Rahm\joust-1\src\Descriptor\bin\Debug\netcoreapp1.1\Descriptor.dll
 --define:DEBUG
 --define:TRACE
 --define:NETCOREAPP1_1
@@ -86,6 +86,6 @@
 --reference:C:\Users\Rahm\.nuget\packages\System.Threading.Timer\4.3.0\ref\netstandard1.2\System.Threading.Timer.dll
 --reference:C:\Users\Rahm\.nuget\packages\System.Xml.ReaderWriter\4.3.0\ref\netstandard1.3\System.Xml.ReaderWriter.dll
 --reference:C:\Users\Rahm\.nuget\packages\System.Xml.XDocument\4.3.0\ref\netstandard1.3\System.Xml.XDocument.dll
---reference:c:\Users\Rahm\joust-1\src\Util\bin\Debug\netcoreapp1.1\Util.dll
-c:\Users\Rahm\joust-1\src\Descriptor\FileMetaParser.cs
-c:\Users\Rahm\joust-1\src\Descriptor\MetaData.cs
+--reference:C:\Users\Rahm\joust-1\src\Util\bin\Debug\netcoreapp1.1\Util.dll
+C:\Users\Rahm\joust-1\src\Descriptor\FileMetaParser.cs
+C:\Users\Rahm\joust-1\src\Descriptor\MetaData.cs
