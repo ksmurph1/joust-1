@@ -4,7 +4,6 @@
     "debugType": "portable"
   },
   "dependencies": {
-    "System.Configuration": "2.0.5",
     "System.Runtime.Serialization.Primitives": "4.1.1",
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",

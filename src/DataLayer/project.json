@@ -13,7 +13,7 @@
     "Descriptor":{
       "target": "project"
     },
-    "System.Configuration":"2.0.*"
+        "Microsoft.Extensions.Configuration":"1.1.0"
   },
   "frameworks": {
     "netcoreapp1.1": {
