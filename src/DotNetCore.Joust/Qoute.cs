@@ -19,8 +19,14 @@ namespace DotNetCore.Joust
             this.roomCnt = roomCnt;
             this.orderIds = orderIds;
             this.hrRate = hourlyRate;
-            // get view that consolidates all viewers
-            allSuppliers = new AllSupplierView();
+            IValueReturnObj<object> statusObj;
+            // get view that consolidates all inventory in every company
+            allSuppliers = new AllSupplierView(out statusObj);
+            // if exception then throw it
+            if (statusObj.Exception != null)
+            {
+                throw statusObj.Exception;
+            }
         }
 
         // Total price including material cost, labor cost, and margin
@@ -36,7 +42,7 @@ namespace DotNetCore.Joust
             get
             {
                 decimal total=0m;
-               Parallel.ForEach(allSuppliers.Suppliers,()=>total,(supplier,pls,sum)=>
+               Parallel.ForEach(allSuppliers.Suppliers.Value,()=>total,(supplier,pls,sum)=>
                {
                    foreach (Guid orderId in orderIds)
                    {

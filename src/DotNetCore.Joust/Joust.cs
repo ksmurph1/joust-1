@@ -24,7 +24,15 @@ namespace DotNetCore.Joust
 
             // company name to price index pair where sqft is greater equal than sqft needed 
             KeyValuePair<string, kvp> maxSqFtSupplier = new KeyValuePair<string, kvp>(String.Empty, new kvp(Double.MinValue, new DataSpec()));
-            foreach (IInventory supplier in new AllSupplierView().Suppliers)
+            // check if exception on getting views
+            IValueReturnObj<object> statusObj;
+            AllSupplierView view=new AllSupplierView(out statusObj);
+            if (statusObj.Exception != null)
+            {
+                // if exception then throw
+                throw statusObj.Exception;
+            }
+            foreach (IInventory supplier in view.Suppliers.Value)
             {
                     Func<IDataSpecs, bool> cond = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
                     d.Width * d.Length < input[(byte)InputNames.SQFTREQ];
