@@ -28,5 +28,8 @@
         "portable-net451+win8"
       ]
     }
+  },
+  "runtimes": {
+    "win7-x64":{}
   }
 }
