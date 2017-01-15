@@ -4,7 +4,6 @@
 -nowarn:CS1701
 -nowarn:CS1702
 -nowarn:CS1705
--t:library
 -debug:portable
 -nostdlib
 -nologo

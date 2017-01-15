@@ -8,6 +8,7 @@
 --suppress-warning:CS1705
 --optimize:False
 --debug-type:portable
+--emit-entry-point:True
 --output-name:DotNetCore.Test
 --file-version:1.0.0.0
 --version:1.0.0.0

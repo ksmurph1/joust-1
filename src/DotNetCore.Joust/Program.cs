@@ -1,12 +1,10 @@
 ﻿using System;
-
-namespace DotNetCore.Joust
+namespace DotNetCore.Test
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine($"Hello world!");
             Console.ReadKey();
         }
     }

@@ -1,7 +1,8 @@
 ﻿{
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable"
+    "debugType": "portable",
+    "emitEntryPoint":true
   },
   "dependencies": {
     "System.Runtime.Serialization.Primitives": "4.1.1",
@@ -25,5 +26,8 @@
         "portable-net451+win8"
       ]
     }
+  },
+  "runtimes": {
+    "win7-x64":{}
   }
 }
