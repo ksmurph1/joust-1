@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Configuration;
 namespace Util
 {
-    public sealed class Utilities
+    public static class Utilities
     {
+        private static AppSettings appSettings = new AppSettings();
         public static string LongestCommonSubstring(string stringA, string stringB)
         {
             List<string> allSubstrings = new List<string>();
@@ -22,6 +24,13 @@ namespace Util
 
             return allSubstrings.OrderBy(subStr => subStr).ThenByDescending(subStr => subStr.Length).
                    Where(subStr => stringB.Contains(subStr)).DefaultIfEmpty(String.Empty).First();
+        }
+        public static AppSettings AppSettings
+        {
+            get
+            {
+                return appSettings;
+            }
         }
     }
 }

@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using System.IO;
 using System.Reflection;
-using System.Configuration;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
@@ -22,7 +21,7 @@ namespace DataLayer
             try
             {
 
-                string dataDir = ConfigurationManager.AppSettings["data-dir"];
+                string dataDir = Utilities.AppSettings["data-dir"];
 
                 var maxes = (from file in Directory.GetFiles(dataDir, "*.csv") // iterate over csv files
                              let match = rgx.Match(file) // get matches

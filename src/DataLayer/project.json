@@ -7,13 +7,16 @@
     "Util":{
       "target": "project"
     },
+    "Configuration":{
+      "target": "project"
+    },
     "DataObject":{
         "target": "project"
     },
     "Descriptor":{
       "target": "project"
     },
-        "Microsoft.Extensions.Configuration":"1.1.0"
+    "System.ComponentModel.TypeConverter": "4.0.0"
   },
   "frameworks": {
     "netcoreapp1.1": {

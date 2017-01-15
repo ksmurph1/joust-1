@@ -71,7 +71,7 @@ namespace Supplier
                 }
                 else if (exceptional)
                 {
-                    statusObj.Exception = new Exception(System.Reflection.MethodBase.GetCurrentMethod().Name +
+                    statusObj.Exception = new Exception("Suppliers.get(): " +
                         "There was a problem getting a view, thus no suppliers could be provided");
                 }
                 else

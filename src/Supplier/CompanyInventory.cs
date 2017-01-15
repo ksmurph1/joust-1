@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Linq;
 using System.IO;
@@ -20,7 +21,7 @@ namespace Supplier
         public static IValueReturnObj<IInventory> FillInventory()
         {
             IValueReturnObj<IInventory> statusObj = new ValueReturnObj<IInventory>();
-            string methodName = MethodBase.GetCurrentMethod().Name;
+            string methodName = "FillInventory()";
   
             try
             {
@@ -83,7 +84,7 @@ namespace Supplier
             }
             catch (Exception ex)
             {
-                statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ": " + ex.Message);
+                statusObj.Exception = new Exception("GetRow(" + id+ "): " + ex.Message);
             }
             return statusObj;
         }
@@ -95,8 +96,9 @@ namespace Supplier
         public IList<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
         {
             IValueReturnObj<KeyValuePair<T, IDataSpecs>> statusObj = new ValueReturnObj<KeyValuePair<T, IDataSpecs>>();
-            System.Collections.ObjectModel.ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> result=
-                Array.AsReadOnly(new IValueReturnObj<KeyValuePair<T, IDataSpecs>>[] { statusObj });
+           ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> result=
+            new ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>>(
+                new IValueReturnObj<KeyValuePair<T, IDataSpecs>>[] { statusObj });
                 try
                 {
                     IEnumerable<IDataSpecs> collection;
@@ -110,7 +112,7 @@ namespace Supplier
                     {
                         collection = rows.Where(d => (bool)conditional.Invoke(null, new object[] { d }));
                     }
-                    result=Array.AsReadOnly(collection.AsParallel().Select(
+                    result=new ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>>(collection.AsParallel().Select(
                         d => new ValueReturnObj<KeyValuePair<T, IDataSpecs>>
                         {
                  // apply operation on each data object and store as key, value
@@ -120,7 +122,7 @@ namespace Supplier
                 catch (Exception e)
                 {
 
-                    statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ": " + e.Message);
+                    statusObj.Exception = new Exception("ApplyOperation<T>("+operation + "): " + e.Message);
                 }
             return result;
         }

@@ -1,0 +1,100 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v1.1",
+    "signature": "35ef78841d3b67a7c1c6c5587f0f56b7868c0c1f"
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v1.1": {
+      "DataLayer/1.0.0": {
+        "dependencies": {
+          "Util": "1.0.0",
+          "Configuration": "1.0.0",
+          "DataObject": "1.0.0",
+          "Descriptor": "1.0.0",
+          "System.ComponentModel.TypeConverter": "4.0.0"
+        },
+        "runtime": {
+          "DataLayer.dll": {}
+        }
+      },
+      "System.ComponentModel.Primitives/4.0.0": {
+        "runtime": {
+          "lib/dotnet/System.ComponentModel.Primitives.dll": {}
+        }
+      },
+      "System.ComponentModel.TypeConverter/4.0.0": {
+        "dependencies": {
+          "System.ComponentModel.Primitives": "4.0.0"
+        },
+        "runtime": {
+          "lib/dotnet/System.ComponentModel.TypeConverter.dll": {}
+        }
+      },
+      "Configuration/1.0.0": {
+        "runtime": {
+          "Configuration.dll": {}
+        }
+      },
+      "DataObject/1.0.0": {
+        "runtime": {
+          "DataObject.dll": {}
+        }
+      },
+      "Descriptor/1.0.0": {
+        "dependencies": {
+          "Util": "1.0.0",
+          "Configuration": "1.0.0"
+        },
+        "runtime": {
+          "Descriptor.dll": {}
+        }
+      },
+      "Util/1.0.0": {
+        "dependencies": {
+          "Configuration": "1.0.0"
+        },
+        "runtime": {
+          "Util.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "DataLayer/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.ComponentModel.Primitives/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8xElzEmEH5G6XK7qqxRLQ/2r1IuhXlkz0ZdgKNp6ViDD1ukadd+5hccqg1G/L4AYRy96ddMdvgyJjFW87Cegbw=="
+    },
+    "System.ComponentModel.TypeConverter/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-im3TpzE4j5M2ikOxV3/g2whofMzjpixyRlsr67KrX1fW6tC/iTsCmR54+Aqbh1qauKlgLbrbnC0bvij28LXS7g=="
+    },
+    "Configuration/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DataObject/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Descriptor/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Util/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

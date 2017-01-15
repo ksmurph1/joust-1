@@ -1,16 +1,16 @@
 using System.Xml;
 using System.IO;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Util;
 
 namespace Descriptor
 {
     internal struct FileMetaParser
     {
         private static readonly string filename =
-                              ConfigurationManager.AppSettings["meta-filename"];
+                              Utilities.AppSettings["meta-filename"];
 
         public static async void  ParseMetaData()
         {
@@ -38,7 +38,7 @@ namespace Descriptor
             };
 
             
-            using (XmlReader parser = XmlReader.Create(new StreamReader(filename), options))
+            using (XmlReader parser = XmlReader.Create(new StreamReader(File.OpenRead(filename)), options))
             {
                 parser.MoveToContent();
                 parser.ReadStartElement("file-descriptor");
@@ -72,8 +72,7 @@ namespace Descriptor
             string colname = (string)reader.ReadElementContentAs(typeof(string),null);
             if (reader.Name != "data-type")
             {
-                throw new Exception(System.Reflection.MethodBase.GetCurrentMethod().Name +
-                                     ": " + " Found " + reader.Name+" instead of data-type in xml");
+                throw new Exception("ParseColumnData: Found " + reader.Name+" instead of data-type in xml");
             }
             Type t = Type.GetType((string)reader.ReadElementContentAs(typeof(string),null));
             return new Tuple<byte,string, Type>(index,colname, t);

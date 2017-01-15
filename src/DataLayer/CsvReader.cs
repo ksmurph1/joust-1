@@ -113,8 +113,8 @@ namespace DataLayer
                 }
                 else
                 {
-                    statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name +
-                        ": Problem getting next file to process: " + statusObj.Exception);
+                    statusObj.Exception = new Exception("CsvReader(): Problem getting next file to process: " +
+                                         statusObj.Exception);
                 }
             }
             else
@@ -134,7 +134,6 @@ namespace DataLayer
                 using (StreamReader reader = new StreamReader(thisFile.OpenRead(), System.Text.Encoding.ASCII))
                 {
                     string line;
-
                     while ((line = reader.ReadLine()) != null)
                     {
                         string[] results = line.Split(',');
@@ -143,7 +142,7 @@ namespace DataLayer
                         Parallel.For(0, daoProperties.Length, (idx)=>
                          {
                          daoProperties[idx].SetValue(spec, System.ComponentModel.TypeDescriptor.GetConverter(
-                             MetaData.GetColumnType(columnNames[idx])).ConvertFromString(results[idx]));
+                         MetaData.GetColumnType(columnNames[idx])).ConvertFromString(results[idx]));  
                          });
                         dataObjs.Add(spec);
                     }
@@ -152,7 +151,7 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                statusObj.Exception = new Exception(MethodBase.GetCurrentMethod().Name + ":" + e.Message);
+                statusObj.Exception = new Exception("ReadLines():" + e.Message);
             }
             return statusObj;
         }
@@ -171,7 +170,7 @@ namespace DataLayer
             {
                 statusObj = new ValueReturnObj<string>
                 {
-                    Exception = new Exception(MethodBase.GetCurrentMethod().Name + ": " + e.Message)
+                    Exception = new Exception("GetCompanyName(): " + e.Message)
                 };
             }
             return statusObj;

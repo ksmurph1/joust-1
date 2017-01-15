@@ -4,6 +4,9 @@
     "debugType": "portable"
   },
   "dependencies": {
+     "Configuration":{
+      "target": "project"
+    }
   },
   "frameworks": {
     "netcoreapp1.1": {
