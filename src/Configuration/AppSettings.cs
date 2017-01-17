@@ -8,7 +8,7 @@ namespace Configuration
 {
     public sealed class AppSettings
     {
-        private const string APPFILE = "App.config";
+        private const string APPFILE = @"C:\Users\kerry\joust-1\App.config";
         private readonly static ReadOnlyDictionary<string,string> settings;
         static AppSettings()
         {

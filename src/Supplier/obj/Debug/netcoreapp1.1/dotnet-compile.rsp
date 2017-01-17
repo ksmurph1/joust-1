@@ -1,5 +1,5 @@
---temp-output:C:\Users\kerry\joust-1\src\Supplier\obj\Debug\netcoreapp1.1\
---out:C:\Users\kerry\joust-1\src\Supplier\bin\Debug\netcoreapp1.1\Supplier.dll
+--temp-output:c:\Users\kerry\joust-1\src\Supplier\obj\Debug\netcoreapp1.1\
+--out:c:\Users\kerry\joust-1\src\Supplier\bin\Debug\netcoreapp1.1\Supplier.dll
 --define:DEBUG
 --define:TRACE
 --define:NETCOREAPP1_1
@@ -88,11 +88,11 @@
 --reference:C:\Users\kerry\.nuget\packages\System.Threading.Timer\4.3.0\ref\netstandard1.2\System.Threading.Timer.dll
 --reference:C:\Users\kerry\.nuget\packages\System.Xml.ReaderWriter\4.3.0\ref\netstandard1.3\System.Xml.ReaderWriter.dll
 --reference:C:\Users\kerry\.nuget\packages\System.Xml.XDocument\4.3.0\ref\netstandard1.3\System.Xml.XDocument.dll
---reference:C:\Users\kerry\joust-1\src\Configuration\bin\Debug\netcoreapp1.1\Configuration.dll
---reference:C:\Users\kerry\joust-1\src\DataLayer\bin\Debug\netcoreapp1.1\DataLayer.dll
---reference:C:\Users\kerry\joust-1\src\DataObject\bin\Debug\netcoreapp1.1\DataObject.dll
---reference:C:\Users\kerry\joust-1\src\Descriptor\bin\Debug\netcoreapp1.1\Descriptor.dll
---reference:C:\Users\kerry\joust-1\src\Util\bin\Debug\netcoreapp1.1\Util.dll
-C:\Users\kerry\joust-1\src\Supplier\AllSupplierView.cs
-C:\Users\kerry\joust-1\src\Supplier\CompanyInventory.cs
-C:\Users\kerry\joust-1\src\Supplier\IInventory.cs
+--reference:c:\Users\kerry\joust-1\src\Configuration\bin\Debug\netcoreapp1.1\Configuration.dll
+--reference:c:\Users\kerry\joust-1\src\DataLayer\bin\Debug\netcoreapp1.1\DataLayer.dll
+--reference:c:\Users\kerry\joust-1\src\DataObject\bin\Debug\netcoreapp1.1\DataObject.dll
+--reference:c:\Users\kerry\joust-1\src\Descriptor\bin\Debug\netcoreapp1.1\Descriptor.dll
+--reference:c:\Users\kerry\joust-1\src\Util\bin\Debug\netcoreapp1.1\Util.dll
+c:\Users\kerry\joust-1\src\Supplier\AllSupplierView.cs
+c:\Users\kerry\joust-1\src\Supplier\CompanyInventory.cs
+c:\Users\kerry\joust-1\src\Supplier\IInventory.cs

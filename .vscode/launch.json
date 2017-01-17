@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}\\src\\DotNetCore.Joust\\bin\\Debug\\net452\\DotNetCore.Joust.exe",
+            "program": "${workspaceRoot}\\test\\DotNetCore.Test\\bin\\Debug\\netcoreapp1.1\\win7-x64\\DotNetCore.Test.exe",
             "args": [],
             "cwd": "${workspaceRoot}",
             "externalConsole": false,
