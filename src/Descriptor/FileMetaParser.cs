@@ -37,7 +37,6 @@ namespace Descriptor
                 IgnoreComments = true
             };
 
-            
             using (XmlReader parser = XmlReader.Create(new StreamReader(File.OpenRead(filename)), options))
             {
                 parser.MoveToContent();
