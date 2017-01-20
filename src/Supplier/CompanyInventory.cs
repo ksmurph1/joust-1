@@ -28,11 +28,12 @@ namespace Supplier
                 IValueReturnObj<FileInfo> csvStatusObj;
 
                 ICsvReader reader = new CsvReader(out csvStatusObj);
+                   if (!reader.IsDone)   // continue if not done
+                    {
                 if (csvStatusObj.HasVal)
                 {
                     IValueReturnObj<IDataSpecs[]> rStatusObj;
-                    if (!reader.IsDone)   // continue if not done
-                    {
+                 
                         rStatusObj = reader.ReadLines();
 
                         if (rStatusObj.HasVal)
@@ -59,14 +60,14 @@ namespace Supplier
                         }
                         else
                         {
-                            statusObj.Exception = new Exception(methodName + ": " + rStatusObj.Exception.Message);
+                            statusObj.Exception = new Exception(methodName + ": " + rStatusObj.Exception?.Message);
                         }
-                    }
                 }
                 else
                 {
                     statusObj.Exception = new Exception(methodName + ": Something wrong with csv reader :" + csvStatusObj.Exception.Message);
                 }
+                    }
             }
             catch (Exception ex)
             {

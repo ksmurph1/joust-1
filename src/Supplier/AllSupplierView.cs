@@ -37,6 +37,7 @@ namespace Supplier
                               // exception occurred
                                 throw result.Exception;
                              }
+                             status=false;
                          }
                 }
                 catch (Exception ex)
