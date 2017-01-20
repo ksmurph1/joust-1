@@ -8,11 +8,10 @@ namespace Supplier
 {
     public class AllSupplierView
     {
-        private readonly Stack<IInventory> suppliers = new Stack<IInventory>();
-        private bool exceptional=false;
         private IList<IInventory> readOnlyCollection;
         public AllSupplierView(out IValueReturnObj<object> statusObj)
         {
+            Stack<IInventory> suppliers = new Stack<IInventory>();
             bool status = true;
             statusObj = new ValueReturnObj<object>
             {
@@ -42,12 +41,14 @@ namespace Supplier
                 }
                 catch (Exception ex)
                 {
-                    exceptional=true;
+                    suppliers.Clear();
                     status = false; // terminate loop
                 // store exception if not empty
                   statusObj.Exception = new Exception("AllSupplierView(): "+ex.Message);
                 }
             }
+            readOnlyCollection= new
+                     System.Collections.ObjectModel.ReadOnlyCollection<IInventory>(suppliers.ToArray());
         }
 
         public IValueReturnObj<IList<IInventory>> Suppliers
@@ -55,21 +56,15 @@ namespace Supplier
             get
             {
                 IValueReturnObj<IList<IInventory>> statusObj = new ValueReturnObj<IList<IInventory>>(); 
-                if (!exceptional && readOnlyCollection == null)
+                if (readOnlyCollection.Count > 0)
                 {
-                    // if read only collection does not exist, create it once
-                    readOnlyCollection= new
-                     System.Collections.ObjectModel.ReadOnlyCollection<IInventory>(suppliers.ToArray());
+                    // if we have some elements store it
                     statusObj.Value = readOnlyCollection;
-                }
-                else if (exceptional)
-                {
-                    statusObj.Exception = new Exception("Suppliers.get(): " +
-                        "There was a problem getting a view, thus no suppliers could be provided");
                 }
                 else
                 {
-                    statusObj.Value = readOnlyCollection;
+                    statusObj.Exception = new Exception("Suppliers.get(): " +
+                        "There was a problem getting a view, thus no suppliers could be provided");
                 }
                 return statusObj;
             }
