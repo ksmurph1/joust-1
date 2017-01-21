@@ -111,7 +111,7 @@ namespace Supplier
                     }
                     else
                     {
-                        collection = rows.Where(d => (bool)conditional.Invoke(null, new object[] { d }));
+                        collection = rows.Where(d => (bool)conditional.Invoke(this, new object[] { d }));
                     }
                     result=new ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>>(collection.AsParallel().Select(
                         d => new ValueReturnObj<KeyValuePair<T, IDataSpecs>>

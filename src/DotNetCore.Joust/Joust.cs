@@ -32,6 +32,7 @@ namespace DotNetCore.Joust
                 // if exception then throw
                 throw statusObj.Exception;
             }
+            Stack<Task<IEnumerable<kvp>>> taskList = new Stack<Task<IEnumerable<kvp>>>(view.Suppliers.Value.Count);
             foreach (IInventory supplier in view.Suppliers.Value)
             {
                     Func<IDataSpecs, bool> cond = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
@@ -56,7 +57,10 @@ namespace DotNetCore.Joust
                         }
 
                     });
+                    taskList.Push(under);
+                    taskList.Push(over);
             }
+            Task.WaitAll(taskList.ToArray());  // wait for this stage of processing to complete
             uint totalSqFt = 0;
 
             // most bang for the buck 1st, next 2nd and so on, so add from there to find best price
