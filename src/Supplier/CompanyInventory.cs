@@ -14,7 +14,8 @@ namespace Supplier
         private List<IDataSpecs> rows = new List<IDataSpecs>();
         private string title;
         public string CompanyName { get { return title; } }
-        private MethodInfo conditional;
+        private delegate bool UnaryPred<T>(T arg);
+        private Object conditional;
         private CompanyInventory()
         { }
 
@@ -91,7 +92,7 @@ namespace Supplier
         }
         public void SetCriteria<T>(Func<T, bool> criteria)
         {
-            this.conditional = criteria.GetMethodInfo();
+            this.conditional = new UnaryPred<T>(criteria);
         }
 
         public IList<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
@@ -111,7 +112,7 @@ namespace Supplier
                     }
                     else
                     {
-                        collection = rows.Where(d => (bool)conditional.Invoke(this, new object[] { d }));
+                        collection = rows.Where(d => ((UnaryPred<IDataSpecs>)conditional).Invoke(d));
                     }
                     result=new ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>>(collection.AsParallel().Select(
                         d => new ValueReturnObj<KeyValuePair<T, IDataSpecs>>
