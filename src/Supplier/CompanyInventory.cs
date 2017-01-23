@@ -95,12 +95,9 @@ namespace Supplier
             this.conditional = new UnaryPred<T>(criteria);
         }
 
-        public IList<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
+        public IValueReturnObj<KeyValuePair<T, IDataSpecs>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
         {
             IValueReturnObj<KeyValuePair<T, IDataSpecs>> statusObj = new ValueReturnObj<KeyValuePair<T, IDataSpecs>>();
-           ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>> result=
-            new ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>>(
-                new IValueReturnObj<KeyValuePair<T, IDataSpecs>>[] { statusObj });
                 try
                 {
                     IEnumerable<IDataSpecs> collection;
@@ -114,19 +111,18 @@ namespace Supplier
                     {
                         collection = rows.Where(d => ((UnaryPred<IDataSpecs>)conditional).Invoke(d));
                     }
-                    result=new ReadOnlyCollection<IValueReturnObj<KeyValuePair<T, IDataSpecs>>>(collection.AsParallel().Select(
-                        d => new ValueReturnObj<KeyValuePair<T, IDataSpecs>>
-                        {
-                 // apply operation on each data object and store as key, value
-                 Value = new KeyValuePair<T, IDataSpecs>(operation(d), d)
-                        }).Cast< IValueReturnObj<KeyValuePair<T, IDataSpecs>>>().ToArray());
+                    statusObj.Value=new ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>(
+                        collection.AsParallel().Select(
+                             // apply operation on each data object and store as key, value
+                        d => new KeyValuePair<T, IDataSpecs>(operation(d), d)
+                        ).ToArray());
                 }
                 catch (Exception e)
                 {
 
                     statusObj.Exception = new Exception("ApplyOperation<T>("+operation + "): " + e.Message);
                 }
-            return result;
+            return statusObj;
         }
 
     }

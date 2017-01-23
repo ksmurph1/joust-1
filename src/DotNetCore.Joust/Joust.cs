@@ -39,7 +39,8 @@ namespace DotNetCore.Joust
                     d.Width * d.Length < input[(byte)InputNames.SQFTREQ];
                     Task<IEnumerable<kvp>> under = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond));
                     under.ContinueWith(t =>
-                        minSqFtSuppliers.PushRange(t.Result.Select(pi => new KeyValuePair<string, kvp>(supplier.CompanyName, pi)).ToArray()));
+                        minSqFtSuppliers.PushRange(t.Result.Select(
+                            pi => new KeyValuePair<string, kvp>(supplier.CompanyName, pi)).ToArray()));
 
 
                     // set condition for grade and inventory for sqfootneeded >= sqfoot required
@@ -88,33 +89,21 @@ namespace DotNetCore.Joust
             // get inventory with grade >= input and square footage less than what is required
             supplier.SetCriteria(divider);
 
-            // get price index
-            IList<IValueReturnObj<kvp>> suppliers =
-            supplier.ApplyOperation(d => (double)d.Price / (double)(d.Width * d.Length));
-
             IEnumerable<kvp> priceIdxs;
-            // see if there was a exception
-            Exception ex;
-            try
+            // get price index
+            IValueReturnObj<kvp> resultObj =
+            supplier.ApplyOperation(d => (double)d.Price / (double)(d.Width * d.Length));
+            if (resultObj.HasVal)
             {
-                ex = new AggregateException(suppliers.Where(status => status.Exception != null).Select(
-                                                     status => status.Exception));
+            // find lowest price index-most bang for the buck
+            priceIdxs = resultObj.Value;
             }
-            catch (Exception)
-            {
-                ex = null;
-            }
-            // if not notable exception - continue
-            if (ex != null)
-            {
-                // find lowest price index-most bang for the buck
-                priceIdxs = suppliers.Select(status => status.Value);
-            }
+            // throw exception otherwise
             else
             {
-                // if exception, throw it
-                throw ex;
+                throw new Exception("SegmentData(IInventory,Func<IDataSpecs,bool>):"+resultObj.Exception);
             }
+          
             return priceIdxs;
         }
     }
