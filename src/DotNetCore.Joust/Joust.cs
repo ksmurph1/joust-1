@@ -91,7 +91,7 @@ namespace DotNetCore.Joust
 
             IEnumerable<kvp> priceIdxs;
             // get price index
-            IValueReturnObj<kvp> resultObj =
+            IValueReturnObj<System.Collections.ObjectModel.ReadOnlyCollection<kvp>> resultObj =
             supplier.ApplyOperation(d => (double)d.Price / (double)(d.Width * d.Length));
             if (resultObj.HasVal)
             {

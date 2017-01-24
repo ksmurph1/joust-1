@@ -95,9 +95,9 @@ namespace Supplier
             this.conditional = new UnaryPred<T>(criteria);
         }
 
-        public IValueReturnObj<KeyValuePair<T, IDataSpecs>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
+        public IValueReturnObj<ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
         {
-            IValueReturnObj<KeyValuePair<T, IDataSpecs>> statusObj = new ValueReturnObj<KeyValuePair<T, IDataSpecs>>();
+            IValueReturnObj<ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>> statusObj = new ValueReturnObj<ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>>();
                 try
                 {
                     IEnumerable<IDataSpecs> collection;
