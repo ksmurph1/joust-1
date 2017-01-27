@@ -32,22 +32,25 @@ namespace DotNetCore.Joust
                 // if exception then throw
                 throw statusObj.Exception;
             }
-            Stack<Task<IEnumerable<kvp>>> taskList = new Stack<Task<IEnumerable<kvp>>>(view.Suppliers.Value.Count);
+            Stack<Task> taskList = new Stack<Task>(view.Suppliers.Value.Count);
             foreach (IInventory supplier in view.Suppliers.Value)
             {
                     Func<IDataSpecs, bool> cond = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
                     d.Width * d.Length < input[(byte)InputNames.SQFTREQ];
-                    Task<IEnumerable<kvp>> under = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond));
-                    under.ContinueWith(t =>
+                    Task under = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond))
+                    .ContinueWith(t =>
+                    {
+                        if (t.Result.Count() > 0)
                         minSqFtSuppliers.PushRange(t.Result.Select(
-                            pi => new KeyValuePair<string, kvp>(supplier.CompanyName, pi)).ToArray()));
+                            pi => new KeyValuePair<string, kvp>(supplier.CompanyName, pi)).ToArray());
+                    });
 
 
                     // set condition for grade and inventory for sqfootneeded >= sqfoot required
-                    cond = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
+                    Func<IDataSpecs, bool> cond2 = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
                     d.Width * d.Length >= input[(byte)InputNames.SQFTREQ];
-                    Task<IEnumerable<kvp>> over = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond));
-                    over.ContinueWith(t =>
+                    Task over = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond2))
+                    .ContinueWith(t =>
                     {
                         kvp thisMax = t.Result.OrderByDescending(col => col.Key).First();
                         // convert to reference for atomic operation
