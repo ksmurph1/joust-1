@@ -49,32 +49,33 @@ namespace DotNetCore.Joust
                     // set condition for grade and inventory for sqfootneeded >= sqfoot required
                     Func<IDataSpecs, bool> cond2 = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
                     d.Width * d.Length >= input[(byte)InputNames.SQFTREQ];
-                    Task over = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond2))
+                    /*Task over = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond))
                     .ContinueWith(t =>
                     {
-                        kvp thisMax = t.Result.OrderByDescending(col => col.Key).First();
-                        // convert to reference for atomic operation
-                        Nullable<KeyValuePair<string, kvp>> temp = maxSqFtSupplier;
-                        if (temp.Value.Value.Key < thisMax.Key)
+                        kvp thisMax = t.Result.OrderByDescending(col => col.Key).DefaultIfEmpty(new kvp(Double.MinValue, new DataSpec())).First();
+                        lock(taskList)
+                        {
+                            // this must be 1 synchronous operation
+                        if (maxSqFtSupplier.Value.Key < thisMax.Key)
                         {
                             maxSqFtSupplier = new KeyValuePair<string, kvp>(supplier.CompanyName, thisMax);
                         }
-
-                    });
+                        }
+                    });*/
                     taskList.Push(under);
-                    taskList.Push(over);
+               //     taskList.Push(over);
             }
             Task.WaitAll(taskList.ToArray());  // wait for this stage of processing to complete
             uint totalSqFt = 0;
 
             // most bang for the buck 1st, next 2nd and so on, so add from there to find best price
-            IEnumerable<KeyValuePair<string, kvp>> best = minSqFtSuppliers.OrderBy(cpi => cpi.Value.Key).
+            KeyValuePair<string, kvp>[] best = minSqFtSuppliers.OrderBy(cpi => cpi.Value.Key).
               TakeWhile(cpi =>
               {
                   totalSqFt += (uint)cpi.Value.Value.Length * cpi.Value.Value.Width;
                   // take while we haven't met sqft qouta
                   return totalSqFt < input[(byte)InputNames.SQFTREQ];
-              });
+              }).ToArray();
             if (totalSqFt < input[(byte)InputNames.SQFTREQ])
             {
                 // we ran out of suppliers before meeting qouta
@@ -91,7 +92,6 @@ namespace DotNetCore.Joust
         {
             // get inventory with grade >= input and square footage less than what is required
             supplier.SetCriteria(divider);
-
             IEnumerable<kvp> priceIdxs;
             // get price index
             IValueReturnObj<System.Collections.ObjectModel.ReadOnlyCollection<kvp>> resultObj =

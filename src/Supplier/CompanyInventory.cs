@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Reflection;
 using System.Linq;
 using System.IO;
 using System;
@@ -11,7 +10,9 @@ namespace Supplier
 {
     public class CompanyInventory : IInventory
     {
-        private List<IDataSpecs> rows = new List<IDataSpecs>();
+        private System.Collections.Concurrent.ConcurrentStack<IDataSpecs> rows = 
+                                               new System.Collections.Concurrent.ConcurrentStack<IDataSpecs>();
+        private System.Threading.ReaderWriterLockSlim writeReadLock=new System.Threading.ReaderWriterLockSlim();
         private string title;
         public string CompanyName { get { return title; } }
         private delegate bool UnaryPred<T>(T arg);
@@ -43,7 +44,7 @@ namespace Supplier
                             CompanyInventory invHolder = new CompanyInventory();
 
                             // if no exception populate rows of inventory
-                            invHolder.rows.AddRange(rStatusObj.Value);
+                            invHolder.rows.PushRange(rStatusObj.Value);
 
                             // no exceptions- we can continue
                             IValueReturnObj<string> title = reader.GetCompanyName();
@@ -81,7 +82,7 @@ namespace Supplier
             IValueReturnObj<IDataSpecs> statusObj = new ValueReturnObj<IDataSpecs>();
             try
             {
-                statusObj.Value= rows.Find(d => d.ID.Equals(id));
+                statusObj.Value= rows.First(d => d.ID.Equals(id));
                
             }
             catch (Exception ex)
@@ -92,7 +93,10 @@ namespace Supplier
         }
         public void SetCriteria<T>(Func<T, bool> criteria)
         {
+            // allow many concurrent reads but exclusivity on write
+            writeReadLock.EnterWriteLock();
             this.conditional = new UnaryPred<T>(criteria);
+            writeReadLock.ExitWriteLock();
         }
 
         public IValueReturnObj<ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>> ApplyOperation<T>(Func<IDataSpecs, T> operation)
@@ -100,17 +104,14 @@ namespace Supplier
             IValueReturnObj<ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>> statusObj = new ValueReturnObj<ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>>();
                 try
                 {
-                    IEnumerable<IDataSpecs> collection;
-
+                    IEnumerable<IDataSpecs> collection=rows.AsEnumerable();
+                    writeReadLock.EnterReadLock();// synchronize so conditional variable so writes and reads don't conflict
                     // set conditional for rows to select and return new collection
-                    if (conditional == null)
+                    if (conditional != null)
                     {
-                        collection = rows;
+                        collection = collection.Where(d => ((UnaryPred<IDataSpecs>)conditional)(d));
                     }
-                    else
-                    {
-                        collection = rows.Where(d => ((UnaryPred<IDataSpecs>)conditional).Invoke(d));
-                    }
+                    writeReadLock.ExitReadLock();
                     statusObj.Value=new ReadOnlyCollection<KeyValuePair<T, IDataSpecs>>(
                         collection.AsParallel().Select(
                              // apply operation on each data object and store as key, value
@@ -121,6 +122,14 @@ namespace Supplier
                 {
 
                     statusObj.Exception = new Exception("ApplyOperation<T>("+operation + "): " + e.Message);
+                }
+                finally
+                {
+                    // if exception make sure write reader lock is exited
+                    if (writeReadLock.IsReadLockHeld)
+                    {
+                        writeReadLock.ExitReadLock();
+                    }
                 }
             return statusObj;
         }
