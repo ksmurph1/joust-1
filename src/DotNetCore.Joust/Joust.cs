@@ -23,7 +23,7 @@ namespace DotNetCore.Joust
             ConcurrentStack<KeyValuePair<string, kvp>> minSqFtSuppliers = new ConcurrentStack<KeyValuePair<string, kvp>>();
 
             // company name to price index pair where sqft is greater equal than sqft needed 
-            KeyValuePair<string, kvp> maxSqFtSupplier = new KeyValuePair<string, kvp>(String.Empty, new kvp(Double.MinValue, new DataSpec()));
+            KeyValuePair<string, kvp> maxSqFtSupplier = new KeyValuePair<string, kvp>(String.Empty, new kvp(Double.MaxValue, new DataSpec()));
             // check if exception on getting views
             IValueReturnObj<object> statusObj;
             AllSupplierView view=new AllSupplierView(out statusObj);
@@ -32,45 +32,50 @@ namespace DotNetCore.Joust
                 // if exception then throw
                 throw statusObj.Exception;
             }
-            Stack<Task> taskList = new Stack<Task>(view.Suppliers.Value.Count);
-            foreach (IInventory supplier in view.Suppliers.Value)
+            ConcurrentStack<Task> taskList = new ConcurrentStack<Task>();
+           Parallel.ForEach (view.Suppliers.Value, (supplier)=>
             {
-                    Func<IDataSpecs, bool> cond = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
-                    d.Width * d.Length < input[(byte)InputNames.SQFTREQ];
-                    Task under = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond))
-                    .ContinueWith(t =>
+                    
+                    Task thisTask=Task.Factory.StartNew(()=>
                     {
-                        if (t.Result.Count() > 0)
-                        minSqFtSuppliers.PushRange(t.Result.Select(
+                        // get suppliers that are under sqft requirement but meet other criteria
+                    supplier.SetCriteria((IDataSpecs d) => d.Grade >= input[(byte)InputNames.GRADE] &&
+                    d.Width * d.Length < input[(byte)InputNames.SQFTREQ]);
+                    IEnumerable<kvp> transformedResult=SegmentData(supplier);
+                    // save min sq ft suppliers for later processing
+                    if (transformedResult.Count() > 0)
+                        minSqFtSuppliers.PushRange(transformedResult.Select(
                             pi => new KeyValuePair<string, kvp>(supplier.CompanyName, pi)).ToArray());
-                    });
-
-
-                    // set condition for grade and inventory for sqfootneeded >= sqfoot required
-                    Func<IDataSpecs, bool> cond2 = (d) => d.Grade >= input[(byte)InputNames.GRADE] &&
-                    d.Width * d.Length >= input[(byte)InputNames.SQFTREQ];
-                    /*Task over = Task<IEnumerable<kvp>>.Factory.StartNew(() => SegmentData(supplier, cond))
-                    .ContinueWith(t =>
+                    }).ContinueWith(t=>
                     {
-                        kvp thisMax = t.Result.OrderByDescending(col => col.Key).DefaultIfEmpty(new kvp(Double.MinValue, new DataSpec())).First();
+                    // get suppliers that are equal or over sqft requirement but meet other criteria
+                    // set condition for grade and inventory for sqfootneeded >= sqfoot required
+                    supplier.SetCriteria((IDataSpecs d) => d.Grade >= input[(byte)InputNames.GRADE] &&
+                    d.Width * d.Length >= input[(byte)InputNames.SQFTREQ]);
+                    IEnumerable<kvp> transformedResult=SegmentData(supplier);
+                        // order by ascending max of min is the best that meets criteria
+                        // order by sqft then by price index
+                        kvp thisMax = transformedResult.OrderBy(col => col.Value.Width*col.Value.Length).
+                                    ThenBy(col=>col.Key).DefaultIfEmpty(new kvp(Double.MaxValue, new DataSpec())).First();
+                    
                         lock(taskList)
                         {
                             // this must be 1 synchronous operation
-                        if (maxSqFtSupplier.Value.Key < thisMax.Key)
+                        if (maxSqFtSupplier.Value.Key > thisMax.Key)
                         {
                             maxSqFtSupplier = new KeyValuePair<string, kvp>(supplier.CompanyName, thisMax);
                         }
                         }
-                    });*/
-                    taskList.Push(under);
-               //     taskList.Push(over);
-            }
+                    },TaskContinuationOptions.NotOnFaulted);
+                    taskList.Push(thisTask);
+           });
             Task.WaitAll(taskList.ToArray());  // wait for this stage of processing to complete
             uint totalSqFt = 0;
 
             // most bang for the buck 1st, next 2nd and so on, so add from there to find best price
+            //order by price index ascending then by sqft descending get most bang for buck
             KeyValuePair<string, kvp>[] best = minSqFtSuppliers.OrderBy(cpi => cpi.Value.Key).
-              TakeWhile(cpi =>
+              ThenByDescending(cpi=>cpi.Value.Value.Length*cpi.Value.Value.Width).TakeWhile(cpi =>
               {
                   totalSqFt += (uint)cpi.Value.Value.Length * cpi.Value.Value.Width;
                   // take while we haven't met sqft qouta
@@ -88,10 +93,9 @@ namespace DotNetCore.Joust
                              best.Select(cpi => cpi.Value.Value.ID).ToArray());
            
         }
-        private IEnumerable<kvp> SegmentData(IInventory supplier, Func<IDataSpecs, bool> divider)
+        private IEnumerable<kvp> SegmentData(IInventory supplier)
         {
             // get inventory with grade >= input and square footage less than what is required
-            supplier.SetCriteria(divider);
             IEnumerable<kvp> priceIdxs;
             // get price index
             IValueReturnObj<System.Collections.ObjectModel.ReadOnlyCollection<kvp>> resultObj =
