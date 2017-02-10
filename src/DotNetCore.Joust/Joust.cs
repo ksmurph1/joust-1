@@ -23,7 +23,10 @@ namespace DotNetCore.Joust
             ConcurrentStack<KeyValuePair<string, kvp>> minSqFtSuppliers = new ConcurrentStack<KeyValuePair<string, kvp>>();
 
             // company name to price index pair where sqft is greater equal than sqft needed 
-            KeyValuePair<string, kvp> maxSqFtSupplier = new KeyValuePair<string, kvp>(String.Empty, new kvp(Double.MaxValue, new DataSpec()));
+            KeyValuePair<string, kvp> maxSqFtSupplier = new KeyValuePair<string, kvp>(String.Empty, new kvp(Double.MinValue, new DataSpec
+            {
+                Price=Decimal.MaxValue
+            }));
             // check if exception on getting views
             IValueReturnObj<object> statusObj;
             AllSupplierView view=new AllSupplierView(out statusObj);
@@ -55,13 +58,18 @@ namespace DotNetCore.Joust
                     IEnumerable<kvp> transformedResult=SegmentData(supplier);
                         // order by ascending max of min is the best that meets criteria
                         // order by sqft then by price index
-                        kvp thisMax = transformedResult.OrderBy(col => col.Value.Width*col.Value.Length).
-                                    ThenBy(col=>col.Key).DefaultIfEmpty(new kvp(Double.MaxValue, new DataSpec())).First();
+                        kvp thisMax = transformedResult.OrderBy(col=>col.Value.Price).
+                                    DefaultIfEmpty(new kvp(Double.MinValue, new DataSpec
+                                    {
+                                        Price=Decimal.MaxValue
+                                    })).First();
                     
                         lock(taskList)
                         {
                             // this must be 1 synchronous operation
-                        if (maxSqFtSupplier.Value.Key > thisMax.Key)
+                            IDataSpecs maxData=maxSqFtSupplier.Value.Value;
+                            // order by ascending area sqft
+                        if (maxData.Price > thisMax.Value.Price)
                         {
                             maxSqFtSupplier = new KeyValuePair<string, kvp>(supplier.CompanyName, thisMax);
                         }
@@ -74,8 +82,8 @@ namespace DotNetCore.Joust
 
             // most bang for the buck 1st, next 2nd and so on, so add from there to find best price
             //order by price index ascending then by sqft descending get most bang for buck
-            KeyValuePair<string, kvp>[] best = minSqFtSuppliers.OrderBy(cpi => cpi.Value.Key).
-              ThenByDescending(cpi=>cpi.Value.Value.Length*cpi.Value.Value.Width).TakeWhile(cpi =>
+            KeyValuePair<string, kvp>[] best = minSqFtSuppliers.OrderBy(cpi => cpi.Value.Value.Price).
+              TakeWhile(cpi =>
               {
                   totalSqFt += (uint)cpi.Value.Value.Length * cpi.Value.Value.Width;
                   // take while we haven't met sqft qouta

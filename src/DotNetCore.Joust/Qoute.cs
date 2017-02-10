@@ -41,24 +41,26 @@ namespace DotNetCore.Joust
            
             get
             {
+               System.Collections.Generic.LinkedList<Guid> orderIds=new System.Collections.Generic.LinkedList<Guid>(this.orderIds);
                 decimal total=0m;
                Parallel.ForEach(allSuppliers.Suppliers.Value,()=>total,(supplier,pls,sum)=>
                {
-                   foreach (Guid orderId in orderIds)
+                   System.Collections.Generic.LinkedListNode<Guid> node=orderIds.First;
+                   for(int i=orderIds.Count-1; i>=0; i--)
                    {
                        // get inventory by id
-                       IValueReturnObj<DataObject.IDataSpecs> statusObj=supplier.GetRow(orderId);
+                       IValueReturnObj<DataObject.IDataSpecs> statusObj=supplier.GetRow(node.Value);
                        if (statusObj.Exception==null)
                        {
                            // add price to total-price could be 0
                            total = sum + statusObj.Value.Price;
+                           lock (this.orderIds)
+                           {
+                               // synchronize access to a non-concurrent list
+                           orderIds.Remove(node.Value); // remove id from list since found
+                           }
                        }
-                       else
-                       {
-                           pls.Stop();
-                           // if exception, throw it
-                           throw statusObj.Exception;
-                       }
+                       node=node.Next;
                    }
                    return total;
                },sum=> { });

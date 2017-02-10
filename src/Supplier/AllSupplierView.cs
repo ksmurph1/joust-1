@@ -3,22 +3,24 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace Supplier
 {
     public class AllSupplierView
     {
-        private IList<IInventory> readOnlyCollection;
+        private static IList<IInventory> readOnlyCollection=new ReadOnlyCollection<IInventory>(new IInventory[0]);
         public AllSupplierView(out IValueReturnObj<object> statusObj)
         {
             Stack<IInventory> suppliers = new Stack<IInventory>();
-            bool status = true;
             statusObj = new ValueReturnObj<object>
             {
                 HasVal = true
             };
-            /*System.Threading.CancellationTokenSource cToken = new System.Threading.CancellationTokenSource();
-            Stack<Task> tasks = new Stack<Task>();*/
+            if (readOnlyCollection.Count == 0)
+            {
+            bool status = true;
+
             while (status)
             {
                 try
@@ -49,7 +51,8 @@ namespace Supplier
                 }
             }
             readOnlyCollection= new
-                     System.Collections.ObjectModel.ReadOnlyCollection<IInventory>(suppliers.ToArray());
+                     ReadOnlyCollection<IInventory>(suppliers.ToArray());
+            }
         }
 
         public IValueReturnObj<IList<IInventory>> Suppliers
