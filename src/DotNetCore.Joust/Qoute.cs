@@ -46,7 +46,7 @@ namespace DotNetCore.Joust
                Parallel.ForEach(allSuppliers.Suppliers.Value,()=>total,(supplier,pls,sum)=>
                {
                    System.Collections.Generic.LinkedListNode<Guid> node=orderIds.First;
-                   for(int i=orderIds.Count-1; i>=0; i--)
+                   for(int i=orderIds.Count-1; i>=0&&node!=null; i--)
                    {
                        // get inventory by id
                        IValueReturnObj<DataObject.IDataSpecs> statusObj=supplier.GetRow(node.Value);
@@ -83,7 +83,7 @@ namespace DotNetCore.Joust
         {
           get
             {
-                return orderIds.Cast<String>().ToArray();
+                return orderIds.Select(g=>g.ToString()).ToArray();
             }
         }
     }
