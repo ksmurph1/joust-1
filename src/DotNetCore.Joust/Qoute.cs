@@ -42,16 +42,18 @@ namespace DotNetCore.Joust
             get
             {
                System.Collections.Generic.LinkedList<Guid> orderIds=new System.Collections.Generic.LinkedList<Guid>(this.orderIds);
+               bool [] idFound=new bool[orderIds.Count];
                 decimal total=0m;
                Parallel.ForEach(allSuppliers.Suppliers.Value,()=>total,(supplier,pls,sum)=>
                {
                    System.Collections.Generic.LinkedListNode<Guid> node=orderIds.First;
-                   for(int i=orderIds.Count-1; i>=0&&node!=null; i--)
+                   for(int i=orderIds.Count-1;i>=0&& !idFound[i]&&node!=null; i--,node=node.Next)
                    {
                        // get inventory by id
                        IValueReturnObj<DataObject.IDataSpecs> statusObj=supplier.GetRow(node.Value);
                        if (statusObj.Exception==null)
                        {
+                           idFound[i]=true; // set flag that id found for other threads
                            // add price to total-price could be 0
                            total = sum + statusObj.Value.Price;
                            lock (this.orderIds)
@@ -60,7 +62,6 @@ namespace DotNetCore.Joust
                            orderIds.Remove(node.Value); // remove id from list since found
                            }
                        }
-                       node=node.Next;
                    }
                    return total;
                },sum=> { });

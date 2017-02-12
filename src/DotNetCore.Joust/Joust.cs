@@ -85,11 +85,13 @@ namespace DotNetCore.Joust
             KeyValuePair<string, kvp>[] best = minSqFtSuppliers.OrderBy(cpi => cpi.Value.Value.Price).
               TakeWhile(cpi =>
               {
+                  bool cond=totalSqFt <= input[(byte)InputNames.SQFTREQ];
                   totalSqFt += (uint)cpi.Value.Value.Length * cpi.Value.Value.Width;
                   // take while we haven't met sqft qouta
-                  return totalSqFt < input[(byte)InputNames.SQFTREQ];
+                  return cond;
               }).ToArray();
-            if (totalSqFt < input[(byte)InputNames.SQFTREQ])
+            if (totalSqFt-(best[best.Length-1].Value.Value.Length*best[best.Length-1].Value.Value.Width) < 
+                          input[(byte)InputNames.SQFTREQ])
             {
                 // we ran out of suppliers before meeting qouta
                 // best is the max found that meets sqft

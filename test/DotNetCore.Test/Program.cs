@@ -6,7 +6,8 @@ namespace DotNetCore.Test
         public static void Main(string[] args)
         {
             Joust1_ShouldReturnAccurateQuotes test=new Joust1_ShouldReturnAccurateQuotes();
-            test.AccurateForSingleCarpet();
+      //      test.AccurateForSingleCarpet();
+            test.AccurateForMoreCarpets();
             Console.ReadKey();
         }
     }
