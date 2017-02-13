@@ -82,7 +82,7 @@ namespace Supplier
             IValueReturnObj<IDataSpecs> statusObj = new ValueReturnObj<IDataSpecs>();
             try
             {
-                statusObj.Value= rows.First(d => d.ID.Equals(id));
+                statusObj.Value= rows.AsParallel().First(d => d.ID.Equals(id));
                
             }
             catch (Exception ex)

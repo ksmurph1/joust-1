@@ -41,30 +41,31 @@ namespace DotNetCore.Joust
            
             get
             {
-               System.Collections.Generic.LinkedList<Guid> orderIds=new System.Collections.Generic.LinkedList<Guid>(this.orderIds);
-               bool [] idFound=new bool[orderIds.Count];
                 decimal total=0m;
+                byte count=0;
+                System.Collections.Concurrent.ConcurrentDictionary<byte,Guid> orderIds=
+                new System.Collections.Concurrent.ConcurrentDictionary<byte,Guid>(this.orderIds.ToDictionary(k=>count++,g=>g));
                Parallel.ForEach(allSuppliers.Suppliers.Value,()=>total,(supplier,pls,sum)=>
                {
-                   System.Collections.Generic.LinkedListNode<Guid> node=orderIds.First;
-                   for(int i=orderIds.Count-1;i>=0&& !idFound[i]&&node!=null; i--,node=node.Next)
+                   foreach (System.Collections.Generic.KeyValuePair<byte,Guid> kvp in orderIds)
                    {
                        // get inventory by id
-                       IValueReturnObj<DataObject.IDataSpecs> statusObj=supplier.GetRow(node.Value);
+                       IValueReturnObj<DataObject.IDataSpecs> statusObj=supplier.GetRow(kvp.Value);
                        if (statusObj.Exception==null)
                        {
-                           idFound[i]=true; // set flag that id found for other threads
-                           // add price to total-price could be 0
-                           total = sum + statusObj.Value.Price;
-                           lock (this.orderIds)
-                           {
-                               // synchronize access to a non-concurrent list
-                           orderIds.Remove(node.Value); // remove id from list since found
-                           }
+                               // add price to total-price could be 0
+                           sum += statusObj.Value.Price;
+                           Guid value;
+                           // remove key, value from dictionary since already found
+                           orderIds.TryRemove(kvp.Key,out value);
                        }
+                      
                    }
-                   return total;
-               },sum=> { });
+                   return sum;
+               },sum=>
+               {
+                   total+=sum;
+               });
                 return (float)total;
             }
         }
