@@ -8,6 +8,7 @@ namespace DotNetCore.Test
             Joust1_ShouldReturnAccurateQuotes test=new Joust1_ShouldReturnAccurateQuotes();
       //      test.AccurateForSingleCarpet();
             test.AccurateForMoreCarpets();
+            test.ReturnsNullIfNoneAvalibleInATimelyManner();
             Console.ReadKey();
         }
     }

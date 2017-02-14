@@ -64,7 +64,10 @@ namespace DotNetCore.Joust
                    return sum;
                },sum=>
                {
-                   total+=sum;
+                   lock (this.orderIds)
+                   {
+                      total+=sum;
+                   }
                });
                 return (float)total;
             }
