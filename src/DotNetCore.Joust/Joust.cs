@@ -23,10 +23,11 @@ namespace DotNetCore.Joust
             ConcurrentStack<KeyValuePair<string, kvp>> minSqFtSuppliers = new ConcurrentStack<KeyValuePair<string, kvp>>();
 
             // company name to price index pair where sqft is greater equal than sqft needed 
-            KeyValuePair<string, kvp> maxSqFtSupplier = new KeyValuePair<string, kvp>(String.Empty, new kvp(Double.MinValue, new DataSpec
+            KeyValuePair<string, kvp> maxDefault = new KeyValuePair<string, kvp>(String.Empty, new kvp(Double.MinValue, new DataSpec
             {
                 Price=Decimal.MaxValue
             }));
+            KeyValuePair<string, kvp> maxSqFtSupplier=maxDefault;
             // check if exception on getting views
             IValueReturnObj<object> statusObj;
             AllSupplierView view=new AllSupplierView(out statusObj);
@@ -97,11 +98,17 @@ namespace DotNetCore.Joust
                 // best is the max found that meets sqft
                 best = new KeyValuePair<string, kvp>[] { maxSqFtSupplier };
             }
-
+if ( best.First().Equals(maxDefault) )
+{
+    // error, could not find qoute that meets criteria
+    return null;
+}
+else
+{
             // calculate new Qoute based on lowest price
             return new Qoute(input[(byte)InputNames.HRLYLABOR], input[(byte)InputNames.ROOMCNT],
                              best.Select(cpi => cpi.Value.Value.ID).ToArray());
-           
+}          
         }
         private IEnumerable<kvp> SegmentData(IInventory supplier)
         {
